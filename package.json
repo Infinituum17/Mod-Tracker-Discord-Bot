@@ -1,0 +1,23 @@
+{
+  "name": "mod-tracker",
+  "module": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "hot-start": "bun --hot run src/index.ts",
+    "rest": "bun run src/rest-cli.ts",
+    "register-local": "bun run src/rest-cli.ts register -g 438753802850533387",
+    "delete-local": "bun run src/rest-cli.ts delete -g 438753802850533387"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.4.1"
+  }
+}
