@@ -8,7 +8,7 @@ export class Storage {
 
     constructor(filename = 'storage.sqlite') {
         this.db = new Database(join(process.cwd(), filename));
-        this.tableName = 'names';
+        this.tableName = 'tracked_mods';
 
         this.initDB();
     }
@@ -86,18 +86,18 @@ export class Storage {
 
     setLastModrinthCheck(guildId: string, name: string) {
         const query = this.db.query(
-            `UPDATE ${this.tableName} SET modrinth_last_check = datetime('now', 'localtime')`
+            `UPDATE ${this.tableName} SET modrinth_last_check = datetime('now', 'localtime') WHERE ${this.tableName}.guild_id = ? AND ${this.tableName}.name = ?`
         );
 
-        query.run();
+        query.run(guildId, name);
     }
 
     setLastCurseForgeCheck(guildId: string, name: string) {
         const query = this.db.query(
-            `UPDATE ${this.tableName} SET curseforge_last_check = datetime('now', 'localtime')`
+            `UPDATE ${this.tableName} SET curseforge_last_check = datetime('now', 'localtime') WHERE ${this.tableName}.guild_id = ? AND ${this.tableName}.name = ?`
         );
 
-        query.run();
+        query.run(guildId, name);
     }
 
     getAll() {
