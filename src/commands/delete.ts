@@ -1,6 +1,7 @@
-import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
+import { SlashCommandBuilder } from 'discord.js';
 import type { Command } from '../types/Command';
 import { logger, storage } from '../utils/global';
+import { buildCustomEmbed } from '../utils/commandUtils';
 
 const deleteCommand: Command = {
     data: new SlashCommandBuilder()
@@ -16,16 +17,14 @@ const deleteCommand: Command = {
     async execute(interaction) {
         const name = interaction.options.getString('name');
 
+        const embed = buildCustomEmbed();
+
         if (!name) {
             logger.warn('`name` option not found in `delete`');
 
             await interaction.reply({
                 embeds: [
-                    new EmbedBuilder()
-                        .setColor(0xf83d58)
-                        .setTitle('🔍 Mod Tracker')
-                        .setDescription(`❌ Name option wasn't specified!`)
-                        .setThumbnail('https://i.imgur.com/HguGI4C.png'),
+                    embed.setDescription(`❌ Name option wasn't specified!`),
                 ],
             });
             return;
@@ -41,13 +40,9 @@ const deleteCommand: Command = {
 
             await interaction.reply({
                 embeds: [
-                    new EmbedBuilder()
-                        .setColor(0xf83d58)
-                        .setTitle('🔍 Mod Tracker')
-                        .setDescription(
-                            `❌ Can't delete mod '**${name}**' because the name hasn't been used yet!`
-                        )
-                        .setThumbnail('https://i.imgur.com/HguGI4C.png'),
+                    embed.setDescription(
+                        `❌ Can't delete mod '**${name}**' because the name hasn't been used yet!`
+                    ),
                 ],
             });
 
@@ -55,13 +50,7 @@ const deleteCommand: Command = {
         }
 
         await interaction.reply({
-            embeds: [
-                new EmbedBuilder()
-                    .setColor(0xf83d58)
-                    .setTitle('🔍 Mod Tracker')
-                    .setDescription(`🕹️ Deleting mod '**${name}**'...`)
-                    .setThumbnail('https://i.imgur.com/HguGI4C.png'),
-            ],
+            embeds: [embed.setDescription(`🕹️ Deleting mod '**${name}**'...`)],
         });
 
         logger.log(

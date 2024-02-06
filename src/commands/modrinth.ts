@@ -1,6 +1,7 @@
-import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
+import { SlashCommandBuilder } from 'discord.js';
 import type { Command } from '../types/Command';
 import { logger, storage } from '../utils/global';
+import { buildCustomEmbed } from '../utils/commandUtils';
 
 const modrinthCommand: Command = {
     data: new SlashCommandBuilder()
@@ -23,16 +24,14 @@ const modrinthCommand: Command = {
         const name = interaction.options.getString('name');
         const projectId = interaction.options.getString('project-id-or-slug');
 
+        const embed = buildCustomEmbed();
+
         if (!name) {
             logger.warn('`name` option not found in `modrinth`');
 
             await interaction.reply({
                 embeds: [
-                    new EmbedBuilder()
-                        .setColor(0xf83d58)
-                        .setTitle('🔍 Mod Tracker')
-                        .setDescription(`❌ Name option wasn't specified!`)
-                        .setThumbnail('https://i.imgur.com/HguGI4C.png'),
+                    embed.setDescription(`❌ Name option wasn't specified!`),
                 ],
             });
             return;
@@ -43,13 +42,9 @@ const modrinthCommand: Command = {
 
             await interaction.reply({
                 embeds: [
-                    new EmbedBuilder()
-                        .setColor(0xf83d58)
-                        .setTitle('🔍 Mod Tracker')
-                        .setDescription(
-                            `❌ Project-id option wasn't specified!`
-                        )
-                        .setThumbnail('https://i.imgur.com/HguGI4C.png'),
+                    embed.setDescription(
+                        `❌ Project-id option wasn't specified!`
+                    ),
                 ],
             });
             return;
@@ -65,13 +60,9 @@ const modrinthCommand: Command = {
 
             await interaction.reply({
                 embeds: [
-                    new EmbedBuilder()
-                        .setColor(0xf83d58)
-                        .setTitle('🔍 Mod Tracker')
-                        .setDescription(
-                            `❌ Can't select Modrinth project for mod '**${name}**' because the name hasn't been used yet!`
-                        )
-                        .setThumbnail('https://i.imgur.com/HguGI4C.png'),
+                    embed.setDescription(
+                        `❌ Can't select Modrinth project for mod '**${name}**' because the name hasn't been used yet!`
+                    ),
                 ],
             });
 
@@ -80,13 +71,9 @@ const modrinthCommand: Command = {
 
         await interaction.reply({
             embeds: [
-                new EmbedBuilder()
-                    .setColor(0xf83d58)
-                    .setTitle('🔍 Mod Tracker')
-                    .setDescription(
-                        `🕹️ Setting Modrinth project '${projectId.toString()}' for mod '**${name}**'...`
-                    )
-                    .setThumbnail('https://i.imgur.com/HguGI4C.png'),
+                embed.setDescription(
+                    `🕹️ Setting Modrinth project '${projectId.toString()}' for mod '**${name}**'...`
+                ),
             ],
         });
 

@@ -1,6 +1,7 @@
-import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
+import { SlashCommandBuilder } from 'discord.js';
 import type { Command } from '../types/Command';
 import { storage, logger } from '../utils/global';
+import { buildCustomEmbed } from '../utils/commandUtils';
 
 const trackCommand: Command = {
     data: new SlashCommandBuilder()
@@ -15,16 +16,14 @@ const trackCommand: Command = {
     async execute(interaction) {
         const name = interaction.options.getString('name');
 
+        const embed = buildCustomEmbed();
+
         if (!name) {
             logger.warn('`name` option not found in `track`');
 
             await interaction.reply({
                 embeds: [
-                    new EmbedBuilder()
-                        .setColor(0xf83d58)
-                        .setTitle('🔍 Mod Tracker')
-                        .setDescription(`❌ Name option wasn't specified!`)
-                        .setThumbnail('https://i.imgur.com/HguGI4C.png'),
+                    embed.setDescription(`❌ Name option wasn't specified!`),
                 ],
             });
             return;
@@ -40,13 +39,9 @@ const trackCommand: Command = {
 
             await interaction.reply({
                 embeds: [
-                    new EmbedBuilder()
-                        .setColor(0xf83d58)
-                        .setTitle('🔍 Mod Tracker')
-                        .setDescription(
-                            `❌ Can't track mod '**${name}**' because the name is already in use!`
-                        )
-                        .setThumbnail('https://i.imgur.com/HguGI4C.png'),
+                    embed.setDescription(
+                        `❌ Can't track mod '**${name}**' because the name is already in use!`
+                    ),
                 ],
             });
 
@@ -55,11 +50,9 @@ const trackCommand: Command = {
 
         await interaction.reply({
             embeds: [
-                new EmbedBuilder()
-                    .setColor(0xf83d58)
-                    .setTitle('🔍 Mod Tracker')
-                    .setDescription(`🕹️ Started tracking mod '**${name}**'...`)
-                    .setThumbnail('https://i.imgur.com/HguGI4C.png'),
+                embed.setDescription(
+                    `🕹️ Started tracking mod '**${name}**'...`
+                ),
             ],
         });
 

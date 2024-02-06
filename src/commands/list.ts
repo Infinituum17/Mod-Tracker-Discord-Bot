@@ -1,6 +1,7 @@
-import { EmbedBuilder, Guild, SlashCommandBuilder } from 'discord.js';
+import { Guild, SlashCommandBuilder } from 'discord.js';
 import type { Command } from '../types/Command';
 import { logger, storage } from '../utils/global';
+import { buildCustomEmbed } from '../utils/commandUtils';
 
 const listCommand: Command = {
     data: new SlashCommandBuilder()
@@ -14,12 +15,8 @@ const listCommand: Command = {
             return;
         }
 
+        const embed = buildCustomEmbed();
         const trackedMods = storage.getAllTrackedMods(interaction.guildId!);
-
-        const embed = new EmbedBuilder()
-            .setColor(0xf83d58)
-            .setTitle('🔍 Mod Tracker')
-            .setThumbnail('https://i.imgur.com/HguGI4C.png');
 
         const fields = await Promise.all(
             trackedMods.map(async (mod) => ({
@@ -33,14 +30,12 @@ const listCommand: Command = {
             }))
         );
 
-        if (trackedMods.length > 0) {
-            embed.addFields(fields);
-        } else {
-            embed.setDescription('👀 No mods are currently tracked');
-        }
-
         await interaction.editReply({
-            embeds: [embed],
+            embeds: [
+                trackedMods.length > 0
+                    ? embed.addFields(fields)
+                    : embed.setDescription('👀 No mods are currently tracked'),
+            ],
         });
     },
 };

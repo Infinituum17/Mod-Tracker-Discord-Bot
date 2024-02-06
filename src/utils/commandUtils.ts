@@ -1,8 +1,9 @@
-import type {
-    CacheType,
-    ChatInputCommandInteraction,
-    RESTPostAPIChatInputApplicationCommandsJSONBody,
-    SlashCommandBuilder,
+import {
+    EmbedBuilder,
+    type CacheType,
+    type ChatInputCommandInteraction,
+    type RESTPostAPIChatInputApplicationCommandsJSONBody,
+    type SlashCommandBuilder,
 } from 'discord.js';
 import { readdir } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -61,4 +62,11 @@ export function logCommand(
             interaction.guild!.name
         }`
     );
+}
+
+export function buildCustomEmbed() {
+    return new EmbedBuilder()
+        .setColor(0xf83d58)
+        .setTitle('🔍 Mod Tracker')
+        .setThumbnail('https://i.imgur.com/HguGI4C.png');
 }
