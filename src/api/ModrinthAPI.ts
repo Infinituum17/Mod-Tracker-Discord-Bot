@@ -1,4 +1,5 @@
 import type { ModrinthProjectVersion } from '../types/ModrinthProjectVersion';
+import { logger } from '../utils/global';
 import { API } from './common/API';
 
 export class ModrinthAPI extends API {
@@ -14,7 +15,7 @@ export class ModrinthAPI extends API {
     };
 
     static updateRateLimit(): boolean {
-        if (Date.now() - 6000 > this.rateLimit.firstRequest) {
+        if (Date.now() - 60_000 > this.rateLimit.firstRequest) {
             this.rateLimit.firstRequest = Date.now();
             this.rateLimit.remainingRequests = 300;
         }
