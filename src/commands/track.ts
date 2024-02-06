@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from 'discord.js';
 import type { Command } from '../types/Command';
 import { storage, logger } from '../utils/global';
-import { buildCustomEmbed } from '../utils/commandUtils';
+import { buildModTrackerEmbed } from '../utils/commandUtils';
 
 const trackCommand: Command = {
     data: new SlashCommandBuilder()
@@ -16,7 +16,7 @@ const trackCommand: Command = {
     async execute(interaction) {
         const name = interaction.options.getString('name');
 
-        const embed = buildCustomEmbed();
+        const embed = buildModTrackerEmbed();
 
         if (!name) {
             logger.warn('`name` option not found in `track`');

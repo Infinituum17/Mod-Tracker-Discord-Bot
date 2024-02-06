@@ -1,7 +1,11 @@
 import { SlashCommandBuilder } from 'discord.js';
 import type { Command } from '../types/Command';
 import { logger, storage } from '../utils/global';
-import { buildCustomEmbed } from '../utils/commandUtils';
+import {
+    buildModTrackerEmbed,
+    buildModrinthAPIEmbed,
+} from '../utils/commandUtils';
+import { ModrinthAPI } from '../api/ModrinthAPI';
 
 const modrinthCommand: Command = {
     data: new SlashCommandBuilder()
@@ -24,7 +28,7 @@ const modrinthCommand: Command = {
         const name = interaction.options.getString('name');
         const projectId = interaction.options.getString('project-id-or-slug');
 
-        const embed = buildCustomEmbed();
+        const embed = buildModTrackerEmbed();
 
         if (!name) {
             logger.warn('`name` option not found in `modrinth`');
@@ -66,6 +70,19 @@ const modrinthCommand: Command = {
                 ],
             });
 
+            return;
+        }
+
+        const api = new ModrinthAPI();
+
+        if (!(await api.verify(projectId))) {
+            await interaction.reply({
+                embeds: [
+                    buildModrinthAPIEmbed().setDescription(
+                        `❌ The specified id or slug doesn't exist!`
+                    ),
+                ],
+            });
             return;
         }
 

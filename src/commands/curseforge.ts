@@ -1,7 +1,11 @@
 import { SlashCommandBuilder } from 'discord.js';
 import type { Command } from '../types/Command';
 import { logger, storage } from '../utils/global';
-import { buildCustomEmbed } from '../utils/commandUtils';
+import {
+    buildCurseForgeAPIEmbed,
+    buildModTrackerEmbed,
+} from '../utils/commandUtils';
+import { CurseForgeAPI } from '../api/CurseForgeAPI';
 
 const curseforgeCommand: Command = {
     data: new SlashCommandBuilder()
@@ -24,7 +28,7 @@ const curseforgeCommand: Command = {
         const name = interaction.options.getString('name');
         const projectId = interaction.options.getString('project-id');
 
-        const embed = buildCustomEmbed();
+        const embed = buildModTrackerEmbed();
 
         if (!name) {
             logger.warn('`name` option not found in `curseforge`');
@@ -66,6 +70,19 @@ const curseforgeCommand: Command = {
                 ],
             });
 
+            return;
+        }
+
+        const api = new CurseForgeAPI();
+
+        if (!(await api.verify(projectId))) {
+            await interaction.reply({
+                embeds: [
+                    buildCurseForgeAPIEmbed().setDescription(
+                        `❌ The specified id doesn't exist!`
+                    ),
+                ],
+            });
             return;
         }
 

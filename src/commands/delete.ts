@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from 'discord.js';
 import type { Command } from '../types/Command';
 import { logger, storage } from '../utils/global';
-import { buildCustomEmbed } from '../utils/commandUtils';
+import { buildModTrackerEmbed } from '../utils/commandUtils';
 
 const deleteCommand: Command = {
     data: new SlashCommandBuilder()
@@ -17,7 +17,7 @@ const deleteCommand: Command = {
     async execute(interaction) {
         const name = interaction.options.getString('name');
 
-        const embed = buildCustomEmbed();
+        const embed = buildModTrackerEmbed();
 
         if (!name) {
             logger.warn('`name` option not found in `delete`');

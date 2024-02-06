@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from 'discord.js';
 import type { Command } from '../types/Command';
 import { logger, storage } from '../utils/global';
-import { buildCustomEmbed } from '../utils/commandUtils';
+import { buildModTrackerEmbed } from '../utils/commandUtils';
 
 const curseforgeCommand: Command = {
     data: new SlashCommandBuilder()
@@ -24,7 +24,7 @@ const curseforgeCommand: Command = {
         const name = interaction.options.getString('name');
         const channel = interaction.options.getChannel('channel');
 
-        const embed = buildCustomEmbed();
+        const embed = buildModTrackerEmbed();
 
         if (!name) {
             logger.warn('`name` option not found in `channel`');

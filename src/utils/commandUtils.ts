@@ -64,9 +64,27 @@ export function logCommand(
     );
 }
 
-export function buildCustomEmbed() {
+export function buildModTrackerEmbed() {
     return new EmbedBuilder()
         .setColor(0xf83d58)
         .setTitle('🔍 Mod Tracker')
         .setThumbnail('https://i.imgur.com/HguGI4C.png');
+}
+
+export function buildModrinthAPIEmbed() {
+    return new EmbedBuilder()
+        .setColor(0x35da72)
+        .setTitle('🟩 Modrinth API')
+        .setThumbnail(
+            'https://media.beehiiv.com/cdn-cgi/image/fit=scale-down,format=auto,onerror=redirect,quality=80/uploads/publication/logo/a49f8e1b-3835-4ea1-a85b-118c6425ebc3/Modrinth_Dark_Logo.png'
+        );
+}
+
+export function buildCurseForgeAPIEmbed() {
+    return new EmbedBuilder()
+        .setColor(0xfb7753)
+        .setTitle('🛠️ CurseForge API')
+        .setThumbnail(
+            'https://cdn.apexminecrafthosting.com/img/uploads/2021/05/21163117/curseforge-logo.png'
+        );
 }

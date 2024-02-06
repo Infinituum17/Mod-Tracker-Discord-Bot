@@ -1,7 +1,7 @@
 import { Guild, SlashCommandBuilder } from 'discord.js';
 import type { Command } from '../types/Command';
 import { logger, storage } from '../utils/global';
-import { buildCustomEmbed } from '../utils/commandUtils';
+import { buildModTrackerEmbed } from '../utils/commandUtils';
 
 const listCommand: Command = {
     data: new SlashCommandBuilder()
@@ -15,7 +15,7 @@ const listCommand: Command = {
             return;
         }
 
-        const embed = buildCustomEmbed();
+        const embed = buildModTrackerEmbed();
         const trackedMods = storage.getAllTrackedMods(interaction.guildId!);
 
         const fields = await Promise.all(
