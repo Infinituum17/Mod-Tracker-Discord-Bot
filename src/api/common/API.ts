@@ -1,5 +1,5 @@
-import type { ProjectVersion } from '../types/ProjectVersions';
-import { logger } from './global';
+import type { ProjectVersion } from '../../types/ProjectVersions';
+import { logger } from '../../utils/global';
 
 export abstract class API {
     abstract api: string;

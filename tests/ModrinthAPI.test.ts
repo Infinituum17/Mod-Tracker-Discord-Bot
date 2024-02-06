@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { ModrinthAPI } from '../src/utils/ModrinthAPI';
+import { ModrinthAPI } from '../src/api/ModrinthAPI';
 
 describe('ModrinthAPI tests', () => {
     test('verify', async () => {

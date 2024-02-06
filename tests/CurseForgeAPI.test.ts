@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'bun:test';
-import { CurseForgeAPI } from '../src/utils/CurseForgeAPI';
+import { CurseForgeAPI } from '../src/api/CurseForgeAPI';
 
 describe('CurseForgeAPI tests', () => {
     test('verify', async () => {

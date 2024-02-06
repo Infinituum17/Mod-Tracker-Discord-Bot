@@ -3,7 +3,7 @@ import {
     type REST,
     type RESTPostAPIChatInputApplicationCommandsJSONBody,
 } from 'discord.js';
-import { logger } from '../../utils/global';
+import { logger } from '../../../utils/global';
 
 export async function registerGlobalCommands(
     rest: REST,

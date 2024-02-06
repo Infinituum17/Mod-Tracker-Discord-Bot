@@ -1,5 +1,5 @@
 import { Routes, type REST } from 'discord.js';
-import { logger } from '../../utils/global';
+import { logger } from '../../../utils/global';
 
 export async function deleteGuildCommands(
     rest: REST,

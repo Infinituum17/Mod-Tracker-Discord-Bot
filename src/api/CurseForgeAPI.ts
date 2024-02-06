@@ -1,5 +1,5 @@
 import { config } from 'dotenv';
-import { API } from './API';
+import { API } from './common/API';
 import type { CurseForgeProjectVersion } from '../types/CurseForgeProjectVersion';
 
 config();

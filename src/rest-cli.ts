@@ -1,11 +1,11 @@
 import { config } from 'dotenv';
-import { deleteGlobalCommands } from './restapi/applicationCommands/delete';
-import { registerGlobalCommands } from './restapi/applicationCommands/register';
-import { deleteGuildCommands } from './restapi/applicationGuildCommands/delete';
-import { registerGuildCommands } from './restapi/applicationGuildCommands/register';
-import { createREST } from './restapi/create';
 import type { REST } from 'discord.js';
 import { serializeCommands } from './utils/commandUtils';
+import { createREST } from './api/discord/create';
+import { registerGuildCommands } from './api/discord/applicationGuildCommands/register';
+import { registerGlobalCommands } from './api/discord/applicationCommands/register';
+import { deleteGuildCommands } from './api/discord/applicationGuildCommands/delete';
+import { deleteGlobalCommands } from './api/discord/applicationCommands/delete';
 
 config();
 
