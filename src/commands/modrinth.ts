@@ -15,13 +15,13 @@ const modrinthCommand: Command = {
         )
         .addStringOption((option) =>
             option
-                .setName('project-id')
-                .setDescription('The project id of the mod to track')
+                .setName('project-id-or-slug')
+                .setDescription('The project id/slug of the mod to track')
                 .setRequired(true)
         ),
     async execute(interaction) {
         const name = interaction.options.getString('name');
-        const projectId = interaction.options.getString('project-id');
+        const projectId = interaction.options.getString('project-id-or-slug');
 
         if (!name) {
             logger.warn('`name` option not found in `modrinth`');
