@@ -8,4 +8,10 @@ describe('CurseForgeAPI tests', () => {
         expect(await api.verify('844270')).toBeTrue();
         expect(await api.verify('844270414122')).toBeFalse();
     });
+
+    test('getProjectVersions', async () => {
+        const api = new CurseForgeAPI();
+
+        expect(await api.getProjectVersions('844270')).pass();
+    });
 });

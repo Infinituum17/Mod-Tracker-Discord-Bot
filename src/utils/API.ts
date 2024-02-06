@@ -1,3 +1,4 @@
+import type { ProjectVersion } from '../types/ProjectVersions';
 import { logger } from './global';
 
 export abstract class API {
@@ -22,4 +23,7 @@ export abstract class API {
     }
 
     abstract verify(idOrSlug: string): Promise<boolean>;
+    abstract getProjectVersions(
+        idOrSlug: string
+    ): Promise<ProjectVersion | ProjectVersion[]>;
 }

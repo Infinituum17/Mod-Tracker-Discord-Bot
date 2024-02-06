@@ -81,6 +81,22 @@ export class Storage {
         query.run(curseforgeId, guildId, name);
     }
 
+    setLastModrinthCheck(guildId: string, name: string) {
+        const query = this.db.query(
+            "UPDATE names SET modrinth_last_check = datetime('now', 'localtime')"
+        );
+
+        query.run();
+    }
+
+    setLastCurseForgeCheck(guildId: string, name: string) {
+        const query = this.db.query(
+            "UPDATE names SET curseforge_last_check = datetime('now', 'localtime')"
+        );
+
+        query.run();
+    }
+
     getAll() {
         const query = this.db.query(`SELECT * FROM names;`);
 

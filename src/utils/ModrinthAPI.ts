@@ -1,3 +1,4 @@
+import type { ModrinthProjectVersion } from '../types/ModrinthProjectVersion';
 import { API } from './API';
 
 export class ModrinthAPI extends API {
@@ -19,5 +20,14 @@ export class ModrinthAPI extends API {
         }
 
         return false;
+    }
+
+    async getProjectVersions(
+        idOrSlug: string
+    ): Promise<ModrinthProjectVersion[]> {
+        return (await this.fetchJson(
+            `project/${idOrSlug}/version`,
+            'GET'
+        )) as ModrinthProjectVersion[];
     }
 }
