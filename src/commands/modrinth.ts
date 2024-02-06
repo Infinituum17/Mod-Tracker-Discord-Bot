@@ -74,8 +74,24 @@ const modrinthCommand: Command = {
         }
 
         const api = new ModrinthAPI();
+        let verified = false;
 
-        if (!(await api.verify(projectId))) {
+        try {
+            verified = await api.verify(projectId);
+        } catch (error) {
+            if ((error as Error).message === 'Rate limit exceeded') {
+                await interaction.reply({
+                    embeds: [
+                        buildModrinthAPIEmbed().setDescription(
+                            `❌ Could not verify mod, retry later`
+                        ),
+                    ],
+                });
+                return;
+            }
+        }
+
+        if (!verified) {
             await interaction.reply({
                 embeds: [
                     buildModrinthAPIEmbed().setDescription(
