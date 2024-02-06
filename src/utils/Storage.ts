@@ -4,15 +4,18 @@ import type { TrackedMod } from '../types/TrackedMod';
 
 export class Storage {
     private db: Database;
+    private tableName: string;
+
     constructor(filename = 'storage.sqlite') {
         this.db = new Database(join(process.cwd(), filename));
+        this.tableName = 'names';
 
         this.initDB();
     }
 
     private initDB() {
         this.db.run(
-            `CREATE TABLE IF NOT EXISTS names (
+            `CREATE TABLE IF NOT EXISTS ${this.tableName} (
                 guild_id TEXT NOT NULL,
                 name TEXT NOT NULL,
                 channel TEXT,
@@ -27,7 +30,7 @@ export class Storage {
 
     registerMod(guildId: string, name: string): void {
         const query = this.db.prepare(
-            `INSERT INTO names (guild_id, name) VALUES (?, ?);`
+            `INSERT INTO ${this.tableName} (guild_id, name) VALUES (?, ?);`
         );
 
         query.run(guildId, name);
@@ -35,7 +38,7 @@ export class Storage {
 
     deleteMod(guildId: string, name: string): void {
         const query = this.db.prepare(
-            `DELETE FROM names WHERE guild_id = ? AND name = ?`
+            `DELETE FROM ${this.tableName} WHERE guild_id = ? AND name = ?`
         );
 
         query.run(guildId, name);
@@ -43,7 +46,7 @@ export class Storage {
 
     getAllTrackedMods(guildId: string): TrackedMod[] {
         const query = this.db.prepare(
-            `SELECT name, channel, modrinth, curseforge FROM names WHERE names.guild_id = ?;`
+            `SELECT * FROM ${this.tableName} WHERE ${this.tableName}.guild_id = ?;`
         );
 
         return query.all(guildId) as TrackedMod[];
@@ -51,7 +54,7 @@ export class Storage {
 
     isRegistered(guildId: string, name: string): boolean {
         const query = this.db.prepare(
-            `SELECT * FROM names WHERE names.guild_id = ? AND names.name = ? LIMIT 1;`
+            `SELECT * FROM ${this.tableName} WHERE ${this.tableName}.guild_id = ? AND ${this.tableName}.name = ? LIMIT 1;`
         );
 
         return query.all(guildId, name).length > 0;
@@ -59,7 +62,7 @@ export class Storage {
 
     setModChannel(guildId: string, name: string, channelId: string): void {
         const query = this.db.prepare(
-            `UPDATE names SET channel = ? WHERE names.guild_id = ? AND names.name = ?;`
+            `UPDATE ${this.tableName} SET channel = ? WHERE ${this.tableName}.guild_id = ? AND ${this.tableName}.name = ?;`
         );
 
         query.run(channelId, guildId, name);
@@ -67,7 +70,7 @@ export class Storage {
 
     setModrinthId(guildId: string, name: string, modrinthId: string) {
         const query = this.db.prepare(
-            `UPDATE names SET modrinth = ? WHERE names.guild_id = ? AND names.name = ?;`
+            `UPDATE ${this.tableName} SET modrinth = ? WHERE ${this.tableName}.guild_id = ? AND ${this.tableName}.name = ?;`
         );
 
         query.run(modrinthId, guildId, name);
@@ -75,7 +78,7 @@ export class Storage {
 
     setCurseForgeId(guildId: string, name: string, curseforgeId: string) {
         const query = this.db.prepare(
-            `UPDATE names SET curseforge = ? WHERE names.guild_id = ? AND names.name = ?;`
+            `UPDATE ${this.tableName} SET curseforge = ? WHERE ${this.tableName}.guild_id = ? AND ${this.tableName}.name = ?;`
         );
 
         query.run(curseforgeId, guildId, name);
@@ -83,7 +86,7 @@ export class Storage {
 
     setLastModrinthCheck(guildId: string, name: string) {
         const query = this.db.query(
-            "UPDATE names SET modrinth_last_check = datetime('now', 'localtime')"
+            `UPDATE ${this.tableName} SET modrinth_last_check = datetime('now', 'localtime')`
         );
 
         query.run();
@@ -91,14 +94,14 @@ export class Storage {
 
     setLastCurseForgeCheck(guildId: string, name: string) {
         const query = this.db.query(
-            "UPDATE names SET curseforge_last_check = datetime('now', 'localtime')"
+            `UPDATE ${this.tableName} SET curseforge_last_check = datetime('now', 'localtime')`
         );
 
         query.run();
     }
 
     getAll() {
-        const query = this.db.query(`SELECT * FROM names;`);
+        const query = this.db.query(`SELECT * FROM ${this.tableName};`);
 
         return query.all();
     }

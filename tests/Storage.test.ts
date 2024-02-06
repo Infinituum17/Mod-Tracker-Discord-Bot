@@ -52,6 +52,8 @@ describe('Storage tests', () => {
         storage.setModrinthId('0', 'mod0', '1');
         storage.setCurseForgeId('0', 'mod0', '2');
         storage.setModChannel('0', 'mod0', '3');
+        storage.setLastModrinthCheck('0', 'mod0');
+        storage.setLastCurseForgeCheck('0', 'mod0');
 
         const mods = storage.getAll() as TrackedMod[];
 
@@ -60,6 +62,9 @@ describe('Storage tests', () => {
         expect(mods[0].modrinth).toBe('1');
         expect(mods[0].curseforge).toBe('2');
         expect(mods[0].channel).toBe('3');
+
+        expect(mods[0].modrinth_last_check).toBeString();
+        expect(mods[0].curseforge_last_check).toBeString();
 
         storage.deleteMod('0', 'mod0');
     });
