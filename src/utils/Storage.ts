@@ -1,12 +1,11 @@
 import { Database } from 'bun:sqlite';
 import { join } from 'node:path';
 import type { TrackedMod } from '../types/TrackedMod';
-import type { Channel } from 'discord.js';
 
 export class Storage {
     private db: Database;
-    constructor() {
-        this.db = new Database(join(process.cwd(), 'storage.sqlite'));
+    constructor(filename = 'storage.sqlite') {
+        this.db = new Database(join(process.cwd(), filename));
 
         this.initDB();
     }
@@ -19,6 +18,8 @@ export class Storage {
                 channel TEXT,
                 modrinth TEXT,
                 curseforge TEXT,
+                modrinth_last_check TEXT,
+                curseforge_last_check TEXT,
                 PRIMARY KEY (guild_id, name)
             );`
         );
