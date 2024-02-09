@@ -3,7 +3,7 @@ import type { Command } from '../types/Command';
 import { logger, storage } from '../utils/global';
 import { buildModTrackerEmbed } from '../utils/commandUtils';
 
-const curseforgeCommand: Command = {
+const channelCommand: Command = {
     data: new SlashCommandBuilder()
         .setName('channel')
         .setDescription('Sets the channel where the bot writes messages')
@@ -83,4 +83,4 @@ const curseforgeCommand: Command = {
     },
 };
 
-export default curseforgeCommand;
+export default channelCommand;
