@@ -1,6 +1,7 @@
 import { config } from 'dotenv';
 import { API } from './common/API';
 import type { CurseForgeProjectVersion } from '../types/CurseForgeProjectVersion';
+import type { CurseForgeProject } from '../types/CurseForgeProject';
 
 config();
 
@@ -30,5 +31,16 @@ export class CurseForgeAPI extends API {
         if (!response.ok) throw new Error(response.statusText);
 
         return (await response.json()) as CurseForgeProjectVersion;
+    }
+
+    async getProject(id: string): Promise<CurseForgeProject> {
+        const response = await fetch(this.getAPIUrl(`mods/${id}`), {
+            method: 'GET',
+            headers: this.headers,
+        });
+
+        if (!response.ok) throw new Error(response.statusText);
+
+        return (await response.json()) as CurseForgeProject;
     }
 }

@@ -1,4 +1,4 @@
-import type { ProjectVersion } from './ProjectVersions';
+import type { ProjectVersion } from './projectTypes';
 
 export interface ModrinthProjectVersion extends ProjectVersion {
     name: string;

@@ -86,23 +86,31 @@ export class Storage {
 
     setLastModrinthCheck(guildId: string, name: string) {
         const query = this.db.query(
-            `UPDATE ${this.tableName} SET modrinth_last_check = datetime('now', 'localtime') WHERE ${this.tableName}.guild_id = ? AND ${this.tableName}.name = ?`
+            `UPDATE ${this.tableName} SET modrinth_last_check = ? WHERE ${this.tableName}.guild_id = ? AND ${this.tableName}.name = ?`
         );
 
-        query.run(guildId, name);
+        query.run(new Date().getTime(), guildId, name);
     }
 
     setLastCurseForgeCheck(guildId: string, name: string) {
         const query = this.db.query(
-            `UPDATE ${this.tableName} SET curseforge_last_check = datetime('now', 'localtime') WHERE ${this.tableName}.guild_id = ? AND ${this.tableName}.name = ?`
+            `UPDATE ${this.tableName} SET curseforge_last_check = ? WHERE ${this.tableName}.guild_id = ? AND ${this.tableName}.name = ?`
         );
 
-        query.run(guildId, name);
+        query.run(new Date().getTime(), guildId, name);
     }
 
-    getAll() {
+    getAll(): TrackedMod[] {
         const query = this.db.query(`SELECT * FROM ${this.tableName};`);
 
-        return query.all();
+        return query.all() as TrackedMod[];
+    }
+
+    getAllWithValidLink(): TrackedMod[] {
+        const query = this.db.query(
+            `SELECT * FROM ${this.tableName} WHERE (${this.tableName}.curseforge IS NOT NULL OR ${this.tableName}.modrinth IS NOT NULL) AND ${this.tableName}.channel IS NOT NULL;`
+        );
+
+        return query.all() as TrackedMod[];
     }
 }

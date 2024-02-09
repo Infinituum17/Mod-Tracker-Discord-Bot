@@ -1,4 +1,4 @@
-import type { ProjectVersion } from '../../types/ProjectVersions';
+import type { Project, ProjectVersion } from '../../types/projectTypes';
 
 export abstract class API {
     abstract api: string;
@@ -25,4 +25,5 @@ export abstract class API {
     abstract getProjectVersions(
         idOrSlug: string
     ): Promise<ProjectVersion | ProjectVersion[]>;
+    abstract getProject(idOrSlug: string): Promise<Project>;
 }

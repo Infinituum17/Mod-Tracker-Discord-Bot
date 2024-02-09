@@ -1,5 +1,6 @@
+import type { ModrinthProject } from '../types/ModrinthProject';
 import type { ModrinthProjectVersion } from '../types/ModrinthProjectVersion';
-import { logger } from '../utils/global';
+import type { Project } from '../types/projectTypes';
 import { API } from './common/API';
 
 export class ModrinthAPI extends API {
@@ -50,12 +51,17 @@ export class ModrinthAPI extends API {
         if (!ModrinthAPI.updateRateLimit())
             throw new Error('Rate limit exceeded');
 
-        ModrinthAPI.updateRateLimit();
-
         return (await this.fetchJson(
             `project/${idOrSlug}/version`,
             'GET'
         )) as ModrinthProjectVersion[];
+    }
+
+    async getProject(idOrSlug: string): Promise<ModrinthProject> {
+        if (!ModrinthAPI.updateRateLimit())
+            throw new Error('Rate limit exceeded');
+
+        return await this.fetchJson(`project/${idOrSlug}`, 'GET');
     }
 }
 

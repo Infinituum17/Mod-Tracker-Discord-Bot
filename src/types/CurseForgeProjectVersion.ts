@@ -1,8 +1,8 @@
-import type { ProjectVersion } from './ProjectVersions';
+import type { ProjectVersion } from './projectTypes';
 
 export interface CurseForgeProjectVersion extends ProjectVersion {
     data?: Data[] | null;
-    pagination: Pagination;
+    pagination?: Pagination;
 }
 export interface Data {
     id: number;
