@@ -7,18 +7,45 @@ const channelCommand: Command = {
     data: new SlashCommandBuilder()
         .setName('channel')
         .setDescription('Sets the channel where the bot writes messages')
-        .addStringOption((option) =>
-            option
-                .setName('name')
-                .setDescription('The name of the mod')
-                .setRequired(true)
-                .setAutocomplete(true)
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName('modrinth')
+                .setDescription('Sets a channel to receive Modrinth messages')
+                .addStringOption((option) =>
+                    option
+                        .setName('name')
+                        .setDescription('The name of the mod')
+                        .setRequired(true)
+                        .setAutocomplete(true)
+                )
+                .addChannelOption((option) =>
+                    option
+                        .setName('channel')
+                        .setDescription(
+                            'The channel where the bot will send messages'
+                        )
+                        .setRequired(true)
+                )
         )
-        .addChannelOption((option) =>
-            option
-                .setName('channel')
-                .setDescription('The channel where the bot will send messages')
-                .setRequired(true)
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName('curseforge')
+                .setDescription('Sets a channel to receive CurseForge messages')
+                .addStringOption((option) =>
+                    option
+                        .setName('name')
+                        .setDescription('The name of the mod')
+                        .setRequired(true)
+                        .setAutocomplete(true)
+                )
+                .addChannelOption((option) =>
+                    option
+                        .setName('channel')
+                        .setDescription(
+                            'The channel where the bot will send messages'
+                        )
+                        .setRequired(true)
+                )
         ),
     async execute(interaction) {
         const name = interaction.options.getString('name');
@@ -67,19 +94,70 @@ const channelCommand: Command = {
             return;
         }
 
-        await interaction.reply({
-            embeds: [
-                embed.setDescription(
-                    `🕹️ Setting channel '${channel.toString()}' for mod '**${name}**'...`
-                ),
-            ],
-        });
+        let subcommand;
 
-        logger.log(
-            `Set channel for mod \`${name}\` in guild \`${interaction.guildId}\`...`
-        );
+        try {
+            subcommand = interaction.options.getSubcommand(true);
+        } catch (error) {
+            await interaction.reply({
+                embeds: [
+                    embed.setDescription(`❌ No subcommand was provided!`),
+                ],
+            });
 
-        storage.setModChannel(interaction.guildId!, name, channel.id);
+            return;
+        }
+
+        switch (subcommand) {
+            case 'modrinth':
+                storage.setModrinthChannel(
+                    interaction.guildId!,
+                    name,
+                    channel.id
+                );
+
+                await interaction.reply({
+                    embeds: [
+                        embed.setDescription(
+                            `🕹️ Setting Modrinth channel '${channel.toString()}' for mod '**${name}**'...`
+                        ),
+                    ],
+                });
+
+                logger.log(
+                    `Setting Modrinth channel for mod \`${name}\` in guild \`${interaction.guildId}\`...`
+                );
+                break;
+            case 'curseforge':
+                storage.setCurseForgeChannel(
+                    interaction.guildId!,
+                    name,
+                    channel.id
+                );
+
+                await interaction.reply({
+                    embeds: [
+                        embed.setDescription(
+                            `🕹️ Setting CurseForge channel '${channel.toString()}' for mod '**${name}**'...`
+                        ),
+                    ],
+                });
+
+                logger.log(
+                    `Setting CurseForge channel for mod \`${name}\` in guild \`${interaction.guildId}\`...`
+                );
+                break;
+            default:
+                await interaction.reply({
+                    embeds: [
+                        embed.setDescription(
+                            `❌ An invalid subcommand was provided!`
+                        ),
+                    ],
+                });
+
+                return;
+        }
     },
 };
 

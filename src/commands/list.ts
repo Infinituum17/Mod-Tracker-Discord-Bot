@@ -21,9 +21,12 @@ const listCommand: Command = {
         const fields = await Promise.all(
             trackedMods.map(async (mod) => ({
                 name: `🕹️ ${mod.name}`,
-                value: `- Channel: ${await getChannel(
+                value: `- Modrinth Channel: ${await getChannel(
                     interaction.guild!,
-                    mod.channel
+                    mod.modrinth_channel
+                )}\n- CurseForge Channel: ${await getChannel(
+                    interaction.guild!,
+                    mod.curseforge_channel
                 )}\n- Modrinth: \`${mod.modrinth ?? '❌'}\`\n- CurseForge: \`${
                     mod.curseforge ?? '❌'
                 }\``,
@@ -41,7 +44,7 @@ const listCommand: Command = {
 };
 
 async function getChannel(guild: Guild, channelId: string | null) {
-    if (channelId === null) return '❌';
+    if (channelId === null) return '`❌`';
 
     return (await guild.channels.fetch(channelId))?.toString();
 }

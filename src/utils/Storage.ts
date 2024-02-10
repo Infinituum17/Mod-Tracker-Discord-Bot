@@ -18,7 +18,8 @@ export class Storage {
             `CREATE TABLE IF NOT EXISTS ${this.tableName} (
                 guild_id TEXT NOT NULL,
                 name TEXT NOT NULL,
-                channel TEXT,
+                modrinth_channel TEXT,
+                curseforge_channel TEXT,
                 modrinth TEXT,
                 curseforge TEXT,
                 modrinth_last_check TEXT,
@@ -60,9 +61,21 @@ export class Storage {
         return query.all(guildId, name).length > 0;
     }
 
-    setModChannel(guildId: string, name: string, channelId: string): void {
+    setModrinthChannel(guildId: string, name: string, channelId: string): void {
         const query = this.db.prepare(
-            `UPDATE ${this.tableName} SET channel = ? WHERE ${this.tableName}.guild_id = ? AND ${this.tableName}.name = ?;`
+            `UPDATE ${this.tableName} SET modrinth_channel = ? WHERE ${this.tableName}.guild_id = ? AND ${this.tableName}.name = ?;`
+        );
+
+        query.run(channelId, guildId, name);
+    }
+
+    setCurseForgeChannel(
+        guildId: string,
+        name: string,
+        channelId: string
+    ): void {
+        const query = this.db.prepare(
+            `UPDATE ${this.tableName} SET curseforge_channel = ? WHERE ${this.tableName}.guild_id = ? AND ${this.tableName}.name = ?;`
         );
 
         query.run(channelId, guildId, name);
@@ -85,7 +98,7 @@ export class Storage {
     }
 
     setLastModrinthCheck(guildId: string, name: string) {
-        const query = this.db.query(
+        const query = this.db.prepare(
             `UPDATE ${this.tableName} SET modrinth_last_check = ? WHERE ${this.tableName}.guild_id = ? AND ${this.tableName}.name = ?`
         );
 
@@ -93,7 +106,7 @@ export class Storage {
     }
 
     setLastCurseForgeCheck(guildId: string, name: string) {
-        const query = this.db.query(
+        const query = this.db.prepare(
             `UPDATE ${this.tableName} SET curseforge_last_check = ? WHERE ${this.tableName}.guild_id = ? AND ${this.tableName}.name = ?`
         );
 
@@ -101,14 +114,14 @@ export class Storage {
     }
 
     getAll(): TrackedMod[] {
-        const query = this.db.query(`SELECT * FROM ${this.tableName};`);
+        const query = this.db.prepare(`SELECT * FROM ${this.tableName};`);
 
         return query.all() as TrackedMod[];
     }
 
     getAllWithValidLink(): TrackedMod[] {
-        const query = this.db.query(
-            `SELECT * FROM ${this.tableName} WHERE (${this.tableName}.curseforge IS NOT NULL OR ${this.tableName}.modrinth IS NOT NULL) AND ${this.tableName}.channel IS NOT NULL;`
+        const query = this.db.prepare(
+            `SELECT * FROM ${this.tableName} WHERE (${this.tableName}.curseforge IS NOT NULL AND ${this.tableName}.curseforge_channel IS NOT NULL) OR (${this.tableName}.modrinth IS NOT NULL AND ${this.tableName}.modrinth_channel IS NOT NULL);`
         );
 
         return query.all() as TrackedMod[];

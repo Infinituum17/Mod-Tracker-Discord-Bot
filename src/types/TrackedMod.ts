@@ -3,7 +3,8 @@ export interface TrackedMod {
     name: string;
     modrinth: string | null;
     curseforge: string | null;
-    channel: string | null;
+    modrinth_channel: string | null;
+    curseforge_channel: string | null;
     modrinth_last_check: string | null;
     curseforge_last_check: string | null;
 }

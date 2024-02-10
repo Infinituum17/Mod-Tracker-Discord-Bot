@@ -13,7 +13,7 @@ import type { CurseForgeProjectVersion } from '../types/CurseForgeProjectVersion
 const logger = new Logger('UPDATE-CHECKER');
 
 export async function checkUpdates(client: Client<true>) {
-    logger.log('Starting updates dispach...');
+    logger.log('Starting updates dispatch...');
 
     const trackedMods = storage.getAllWithValidLink();
 
@@ -26,25 +26,27 @@ export async function checkUpdates(client: Client<true>) {
             continue;
         }
 
-        let channel;
+        let modrinthChannel;
 
-        try {
-            channel = (await guild.channels.fetch(
-                mod.channel!
-            ))! as TextChannel;
-        } catch (error) {
-            continue;
+        if (mod.modrinth_channel !== null) {
+            try {
+                modrinthChannel = (await guild.channels.fetch(
+                    mod.modrinth_channel!
+                ))! as TextChannel;
+            } catch (error) {}
         }
 
-        const modrinthChannel = channel;
-        const curseforgeChannel = channel;
-
-        if (mod.modrinth !== null) {
+        if (
+            mod.modrinth !== null &&
+            modrinthChannel !== null &&
+            typeof modrinthChannel !== 'undefined' &&
+            mod.modrinth_channel !== null
+        ) {
             const [modrinthProject, modrinthUpdates] =
                 await checkModrinthUpdates(mod);
 
             for (const update of modrinthUpdates) {
-                modrinthChannel.send({
+                await modrinthChannel.send({
                     embeds: [
                         buildModrinthAPIEmbed()
                             .setTitle(`🟩 ${modrinthProject.title}`)
@@ -65,12 +67,27 @@ export async function checkUpdates(client: Client<true>) {
             }
         }
 
-        if (mod.curseforge !== null) {
+        let curseforgeChannel;
+
+        if (mod.curseforge_channel !== null) {
+            try {
+                curseforgeChannel = (await guild.channels.fetch(
+                    mod.curseforge_channel
+                ))! as TextChannel;
+            } catch (error) {}
+        }
+
+        if (
+            mod.curseforge !== null &&
+            curseforgeChannel !== null &&
+            typeof curseforgeChannel !== 'undefined' &&
+            mod.curseforge_channel !== null
+        ) {
             const [curseforgeProject, curseforgeUpdates] =
                 await checkCurseForgeUpdates(mod);
 
             for (const update of curseforgeUpdates.data!) {
-                curseforgeChannel.send({
+                await curseforgeChannel.send({
                     embeds: [
                         buildCurseForgeAPIEmbed()
                             .setTitle(`🛠️ ${curseforgeProject.data.name}`)
@@ -151,7 +168,7 @@ async function checkCurseForgeUpdates(
                     new Date(d2.fileDate).getTime() -
                     new Date(d1.fileDate).getTime()
             )
-            .slice(5);
+            .slice(0, 5);
 
         return [project, projectVersions];
     }
