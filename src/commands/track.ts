@@ -1,4 +1,7 @@
-import { SlashCommandBuilder } from 'discord.js';
+import {
+    SlashCommandBuilder,
+    type ApplicationCommandOptionChoiceData,
+} from 'discord.js';
 import type { Command } from '../types/Command';
 import { storage, logger } from '../utils/global';
 import { buildModTrackerEmbed } from '../utils/commandUtils';
@@ -61,6 +64,9 @@ const trackCommand: Command = {
         );
 
         storage.registerMod(interaction.guildId!, name);
+    },
+    async autocomplete(interaction) {
+        return;
     },
 };
 

@@ -1,4 +1,7 @@
-import { SlashCommandBuilder } from 'discord.js';
+import {
+    SlashCommandBuilder,
+    type ApplicationCommandOptionChoiceData,
+} from 'discord.js';
 import type { Command } from '../types/Command';
 import { logger, storage } from '../utils/global';
 import { buildModTrackerEmbed } from '../utils/commandUtils';
@@ -158,6 +161,29 @@ const channelCommand: Command = {
 
                 return;
         }
+    },
+    async autocomplete(interaction) {
+        if (!interaction.inGuild) {
+            logger.warn(
+                `Can't complete command \`${interaction.commandName}\` (not in a guild)`
+            );
+            return;
+        }
+
+        const focused = interaction.options.getFocused(true);
+        let choices: ApplicationCommandOptionChoiceData<string | number>[] = [];
+
+        if (focused.name === 'name') {
+            choices = storage
+                .getAllTrackedMods(interaction.guildId!)
+                .filter((mod) => mod.name.startsWith(focused.value))
+                .map((mod) => ({
+                    name: mod.name,
+                    value: mod.name,
+                }));
+        }
+
+        await interaction.respond(choices);
     },
 };
 

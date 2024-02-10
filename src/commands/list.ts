@@ -1,4 +1,8 @@
-import { Guild, SlashCommandBuilder } from 'discord.js';
+import {
+    Guild,
+    SlashCommandBuilder,
+    type ApplicationCommandOptionChoiceData,
+} from 'discord.js';
 import type { Command } from '../types/Command';
 import { logger, storage } from '../utils/global';
 import { buildModTrackerEmbed } from '../utils/commandUtils';
@@ -40,6 +44,9 @@ const listCommand: Command = {
                     : embed.setDescription('👀 No mods are currently tracked'),
             ],
         });
+    },
+    async autocomplete(interaction) {
+        return;
     },
 };
 

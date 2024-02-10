@@ -25,33 +25,17 @@ client.on('ready', async (client) => {
 
 client.on('interactionCreate', async (interaction) => {
     if (interaction.isChatInputCommand()) {
-        commands.get(interaction.commandName)!.execute(interaction);
+        const command = commands.get(interaction.commandName);
+
+        if (!command) return;
+
+        command.execute(interaction);
     } else if (interaction.isAutocomplete()) {
-        if (!commands.has(interaction.commandName)) {
-            return;
-        }
+        const command = commands.get(interaction.commandName);
 
-        if (!interaction.inGuild) {
-            logger.warn(
-                `Can't complete command \`${interaction.commandName}\` (not in a guild)`
-            );
-            return;
-        }
+        if (!command) return;
 
-        const focused = interaction.options.getFocused(true);
-        let choices: ApplicationCommandOptionChoiceData<string | number>[] = [];
-
-        if (focused.name === 'name') {
-            choices = storage
-                .getAllTrackedMods(interaction.guildId!)
-                .filter((mod) => mod.name.startsWith(focused.value))
-                .map((mod) => ({
-                    name: mod.name,
-                    value: mod.name,
-                }));
-        }
-
-        await interaction.respond(choices);
+        command.autocomplete(interaction);
     }
 });
 
