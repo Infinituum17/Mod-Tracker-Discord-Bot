@@ -1,4 +1,4 @@
-import type { Project, ProjectVersion } from '../../types/projectTypes';
+import type { Project, ProjectVersion } from '../types/projectTypes';
 
 export abstract class API {
     abstract api: string;

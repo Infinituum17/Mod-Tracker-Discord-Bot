@@ -25,7 +25,7 @@ client.on('interactionCreate', async (interaction) => {
 
         if (!command) return;
 
-        command.execute(interaction);
+        command?.execute(interaction);
     } else if (interaction.isAutocomplete()) {
         const command = commands.get(interaction.commandName);
 

@@ -39,7 +39,7 @@ export async function checkUpdates(client: Client<true>) {
             } catch (error) {}
         }
 
-        if (modrinthChannel && !isModrinthUpdated(mod, modrinthChannel)) {
+        if (modrinthChannel && isModrinthOutOfDate(mod, modrinthChannel)) {
             const [modrinthProject, modrinthUpdates] =
                 await checkModrinthUpdates(mod);
 
@@ -60,7 +60,10 @@ export async function checkUpdates(client: Client<true>) {
             } catch (error) {}
         }
 
-        if (curseforgeChannel && isCurseForgeUpdated(mod, curseforgeChannel)) {
+        if (
+            curseforgeChannel &&
+            isCurseForgeOutOfDate(mod, curseforgeChannel)
+        ) {
             const [curseforgeProject, curseforgeUpdates] =
                 await checkCurseForgeUpdates(mod);
 
@@ -77,7 +80,7 @@ export async function checkUpdates(client: Client<true>) {
     }
 }
 
-function isModrinthUpdated(mod: TrackedMod, channel: TextChannel) {
+function isModrinthOutOfDate(mod: TrackedMod, channel: TextChannel) {
     return (
         mod.modrinth_id !== null &&
         channel !== null &&
@@ -86,7 +89,7 @@ function isModrinthUpdated(mod: TrackedMod, channel: TextChannel) {
     );
 }
 
-function isCurseForgeUpdated(mod: TrackedMod, channel: TextChannel) {
+function isCurseForgeOutOfDate(mod: TrackedMod, channel: TextChannel) {
     return (
         mod.curseforge_id !== null &&
         channel !== null &&

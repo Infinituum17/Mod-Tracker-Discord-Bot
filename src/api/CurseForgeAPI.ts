@@ -1,4 +1,4 @@
-import { API } from './common/API';
+import { API } from '../classes/API';
 import type { CurseForgeProjectVersion } from '../types/CurseForgeProjectVersion';
 import type { CurseForgeProject } from '../types/CurseForgeProject';
 

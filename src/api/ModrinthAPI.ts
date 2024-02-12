@@ -1,6 +1,6 @@
 import type { ModrinthProject } from '../types/ModrinthProject';
 import type { ModrinthProjectVersion } from '../types/ModrinthProjectVersion';
-import { API } from './common/API';
+import { API } from '../classes/API';
 
 export class ModrinthAPI extends API {
     private static rateLimit: RateLimit = {
