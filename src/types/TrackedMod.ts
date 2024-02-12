@@ -1,8 +1,8 @@
 export interface TrackedMod {
     guild_id: string;
-    name: string;
-    modrinth: string | null;
-    curseforge: string | null;
+    display_name: string;
+    modrinth_id: string | null;
+    curseforge_id: string | null;
     modrinth_channel: string | null;
     curseforge_channel: string | null;
     modrinth_last_check: string | null;

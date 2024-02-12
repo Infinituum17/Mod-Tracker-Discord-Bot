@@ -17,16 +17,16 @@ const listCommand: Command = {
 
         const fields = await Promise.all(
             trackedMods.map(async (mod) => ({
-                name: `🕹️ ${mod.name}`,
+                name: `🕹️ ${mod.display_name}`,
                 value: `- Modrinth Channel: ${await getChannel(
                     int.guild!,
                     mod.modrinth_channel
                 )}\n- CurseForge Channel: ${await getChannel(
                     int.guild!,
                     mod.curseforge_channel
-                )}\n- Modrinth: \`${mod.modrinth ?? '❌'}\`\n- CurseForge: \`${
-                    mod.curseforge ?? '❌'
-                }\``,
+                )}\n- Modrinth: \`${
+                    mod.modrinth_id ?? '❌'
+                }\`\n- CurseForge: \`${mod.curseforge_id ?? '❌'}\``,
             }))
         );
 

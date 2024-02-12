@@ -89,10 +89,10 @@ const modrinthCommand: Command = {
         if (focused.name === 'name') {
             choices = storage
                 .getAllTrackedMods(interaction.guildId!)
-                .filter((mod) => mod.name.startsWith(focused.value))
+                .filter((mod) => mod.display_name.startsWith(focused.value))
                 .map((mod) => ({
-                    name: mod.name,
-                    value: mod.name,
+                    name: mod.display_name,
+                    value: mod.display_name,
                 }));
         }
 

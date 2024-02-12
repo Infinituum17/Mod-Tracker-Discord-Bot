@@ -1,9 +1,6 @@
-import { config } from 'dotenv';
 import { API } from './common/API';
 import type { CurseForgeProjectVersion } from '../types/CurseForgeProjectVersion';
 import type { CurseForgeProject } from '../types/CurseForgeProject';
-
-config();
 
 export class CurseForgeAPI extends API {
     public api = 'api.curseforge.com';

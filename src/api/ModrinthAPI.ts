@@ -1,6 +1,5 @@
 import type { ModrinthProject } from '../types/ModrinthProject';
 import type { ModrinthProjectVersion } from '../types/ModrinthProjectVersion';
-import type { Project } from '../types/projectTypes';
 import { API } from './common/API';
 
 export class ModrinthAPI extends API {

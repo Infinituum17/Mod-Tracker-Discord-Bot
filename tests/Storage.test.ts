@@ -3,7 +3,6 @@ import { join } from 'node:path';
 import { unlink } from 'node:fs/promises';
 import { Storage } from '../src/classes/Storage';
 import type { TrackedMod } from '../src/types/TrackedMod';
-import { storage } from '../src/utils/global';
 
 describe('Storage tests', () => {
     test('creation', async () => {
@@ -51,17 +50,19 @@ describe('Storage tests', () => {
 
         storage.setModrinthId('0', 'mod0', '1');
         storage.setCurseForgeId('0', 'mod0', '2');
-        storage.setModChannel('0', 'mod0', '3');
+        storage.setCurseForgeChannel('0', 'mod0', '3');
+        storage.setModrinthChannel('0', 'mod0', '3');
         storage.setLastModrinthCheck('0', 'mod0');
         storage.setLastCurseForgeCheck('0', 'mod0');
 
         const mods = storage.getAll() as TrackedMod[];
 
         expect(mods.length).toBe(1);
-        expect(mods[0].name).toBe('mod0');
-        expect(mods[0].modrinth).toBe('1');
-        expect(mods[0].curseforge).toBe('2');
-        expect(mods[0].channel).toBe('3');
+        expect(mods[0].display_name).toBe('mod0');
+        expect(mods[0].modrinth_id).toBe('1');
+        expect(mods[0].curseforge_id).toBe('2');
+        expect(mods[0].curseforge_channel).toBe('3');
+        expect(mods[0].modrinth_channel).toBe('3');
 
         expect(mods[0].modrinth_last_check).toBeString();
         expect(mods[0].curseforge_last_check).toBeString();
@@ -70,6 +71,8 @@ describe('Storage tests', () => {
     });
 
     test('grouping', () => {
+        const storage = new Storage('test.db.sqlite');
+
         for (let i = 0; i < 3; i++) {
             storage.registerMod('0', `${i}`);
         }

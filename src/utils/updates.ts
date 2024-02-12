@@ -79,7 +79,7 @@ export async function checkUpdates(client: Client<true>) {
 
 function isModrinthUpdated(mod: TrackedMod, channel: TextChannel) {
     return (
-        mod.modrinth !== null &&
+        mod.modrinth_id !== null &&
         channel !== null &&
         typeof channel !== 'undefined' &&
         mod.modrinth_channel !== null
@@ -88,7 +88,7 @@ function isModrinthUpdated(mod: TrackedMod, channel: TextChannel) {
 
 function isCurseForgeUpdated(mod: TrackedMod, channel: TextChannel) {
     return (
-        mod.curseforge !== null &&
+        mod.curseforge_id !== null &&
         channel !== null &&
         typeof channel !== 'undefined' &&
         mod.curseforge_channel !== null
@@ -132,14 +132,14 @@ async function checkModrinthUpdates(
     mod: TrackedMod
 ): Promise<[ModrinthProject, ModrinthProjectVersion[]]> {
     const api = new ModrinthAPI();
-    const project = await api.getProject(mod.modrinth!);
+    const project = await api.getProject(mod.modrinth_id!);
 
-    storage.setLastModrinthCheck(mod.guild_id, mod.name);
+    storage.setLastModrinthCheck(mod.guild_id, mod.display_name);
 
     if (mod.modrinth_last_check === null) {
         return [
             project,
-            (await api.getProjectVersions(mod.modrinth!))
+            (await api.getProjectVersions(mod.modrinth_id!))
                 .sort(
                     (v1, v2) =>
                         new Date(v2.date_published).getTime() -
@@ -150,7 +150,7 @@ async function checkModrinthUpdates(
     }
 
     const previous = new Date(mod.modrinth_last_check).getTime();
-    const projectVersions = await api.getProjectVersions(mod.modrinth!);
+    const projectVersions = await api.getProjectVersions(mod.modrinth_id!);
 
     return [
         project,
@@ -164,12 +164,14 @@ async function checkCurseForgeUpdates(
     mod: TrackedMod
 ): Promise<[CurseForgeProject, CurseForgeProjectVersion]> {
     const api = new CurseForgeAPI();
-    const project = await api.getProject(mod.curseforge!);
+    const project = await api.getProject(mod.curseforge_id!);
 
-    storage.setLastCurseForgeCheck(mod.guild_id, mod.name);
+    storage.setLastCurseForgeCheck(mod.guild_id, mod.display_name);
 
     if (mod.curseforge_last_check === null) {
-        const projectVersions = await api.getProjectVersions(mod.curseforge!);
+        const projectVersions = await api.getProjectVersions(
+            mod.curseforge_id!
+        );
 
         if (
             projectVersions.data === null ||
@@ -190,7 +192,7 @@ async function checkCurseForgeUpdates(
     }
 
     const previous = new Date(mod.curseforge_last_check).getTime();
-    const projectVersions = await api.getProjectVersions(mod.curseforge!);
+    const projectVersions = await api.getProjectVersions(mod.curseforge_id!);
 
     if (
         projectVersions.data === null ||
