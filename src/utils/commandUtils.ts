@@ -4,6 +4,7 @@ import {
     type ChatInputCommandInteraction,
     type RESTPostAPIChatInputApplicationCommandsJSONBody,
     type SlashCommandBuilder,
+    AutocompleteInteraction,
 } from 'discord.js';
 import { readdir } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -54,16 +55,6 @@ export function serializeCommands(): RESTPostAPIChatInputApplicationCommandsJSON
     );
 }
 
-export function logCommand(
-    interaction: ChatInputCommandInteraction<CacheType>
-) {
-    logger.log(
-        `Command \`${interaction.commandName}\` was called in guild ${
-            interaction.guild!.name
-        }`
-    );
-}
-
 export function buildModTrackerEmbed() {
     return new EmbedBuilder()
         .setColor(0xf83d58)
@@ -87,4 +78,106 @@ export function buildCurseForgeAPIEmbed() {
         .setThumbnail(
             'https://cdn.apexminecrafthosting.com/img/uploads/2021/05/21163117/curseforge-logo.png'
         );
+}
+
+export async function fastReply(
+    int: ChatInputCommandInteraction<CacheType>,
+    description: string,
+    embedConstructor = buildModTrackerEmbed
+) {
+    await int.reply({
+        embeds: [embedConstructor().setDescription(description)],
+    });
+}
+
+export async function logFastReply(
+    int: ChatInputCommandInteraction<CacheType>,
+    logMessage: string,
+    replyMessage: string,
+    embedConstructor = buildModTrackerEmbed
+) {
+    logger.log(logMessage);
+    await fastReply(int, replyMessage, embedConstructor);
+}
+
+export async function warnFastReply(
+    int: ChatInputCommandInteraction<CacheType>,
+    warnMessage: string,
+    replyMessage: string,
+    embedConstructor = buildModTrackerEmbed
+) {
+    logger.warn(warnMessage);
+    await fastReply(int, replyMessage, embedConstructor);
+}
+
+async function isValidOption(
+    int: ChatInputCommandInteraction<CacheType>,
+    optName: string,
+    optValue: any | null
+): Promise<boolean> {
+    if (!optValue) {
+        await warnFastReply(
+            int,
+            `\`${optName}\` not found in command \`${int.commandName}\``,
+            `❌ \`${optName}\` option is required and wasn't specified!`
+        );
+
+        return false;
+    }
+
+    return true;
+}
+
+export async function verifyRequiredSubcommand(
+    int: ChatInputCommandInteraction<CacheType>
+) {
+    try {
+        return int.options.getSubcommand(true);
+    } catch (error) {
+        await fastReply(int, `❌ No subcommand was provided!`);
+        return null;
+    }
+}
+
+export async function verifyRequiredOptionChannel(
+    int: ChatInputCommandInteraction<CacheType>,
+    optName: string
+) {
+    const optValue = int.options.getChannel(optName);
+
+    if (!(await isValidOption(int, optName, optValue))) return null;
+
+    return optValue;
+}
+
+export async function verifyRequiredOptionString(
+    int: ChatInputCommandInteraction<CacheType>,
+    optName: string
+): Promise<string | null> {
+    const optValue = int.options.getString(optName);
+
+    if (!(await isValidOption(int, optName, optValue))) return null;
+
+    return optValue;
+}
+
+export function outsideGuild(
+    int:
+        | ChatInputCommandInteraction<CacheType>
+        | AutocompleteInteraction<CacheType>,
+    autocompleted = false
+) {
+    if (!int.inGuild()) {
+        if (!autocompleted)
+            logger.warn(
+                `Command \`${int.commandName}\` was ran outside of guild`
+            );
+        else
+            logger.warn(
+                `Command \`${int.commandName}\` is trying to be autocompleted outside of guild`
+            );
+        return true;
+    }
+
+    return false;
 }

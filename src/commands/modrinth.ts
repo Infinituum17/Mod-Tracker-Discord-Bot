@@ -3,10 +3,14 @@ import {
     type ApplicationCommandOptionChoiceData,
 } from 'discord.js';
 import type { Command } from '../types/Command';
-import { logger, storage } from '../utils/global';
+import { storage } from '../utils/global';
 import {
-    buildModTrackerEmbed,
     buildModrinthAPIEmbed,
+    fastReply,
+    logFastReply,
+    outsideGuild,
+    verifyRequiredOptionString,
+    warnFastReply,
 } from '../utils/commandUtils';
 import { ModrinthAPI } from '../api/ModrinthAPI';
 
@@ -27,53 +31,23 @@ const modrinthCommand: Command = {
                 .setDescription('The project id/slug of the mod to track')
                 .setRequired(true)
         ),
-    async execute(interaction) {
-        const name = interaction.options.getString('name');
-        const projectId = interaction.options.getString('project-id-or-slug');
+    async execute(int) {
+        if (outsideGuild(int)) return;
 
-        const embed = buildModTrackerEmbed();
+        const name = await verifyRequiredOptionString(int, 'name');
+        const projectId = await verifyRequiredOptionString(
+            int,
+            'project-id-or-slug'
+        );
 
-        if (!name) {
-            logger.warn('`name` option not found in `modrinth`');
+        if (!name || !projectId) return;
 
-            await interaction.reply({
-                embeds: [
-                    embed.setDescription(`❌ Name option wasn't specified!`),
-                ],
-            });
-            return;
-        }
-
-        if (!projectId) {
-            logger.warn('`project-id` option not found in `channel`');
-
-            await interaction.reply({
-                embeds: [
-                    embed.setDescription(
-                        `❌ Project-id option wasn't specified!`
-                    ),
-                ],
-            });
-            return;
-        }
-
-        if (!interaction.inGuild) {
-            logger.warn("`modrinth` command wasn't run in guild");
-            return;
-        }
-
-        if (!storage.isRegistered(interaction.guildId!, name)) {
-            logger.warn(`\`${name}\` hasn't been found in storage`);
-
-            await interaction.reply({
-                embeds: [
-                    embed.setDescription(
-                        `❌ Can't select Modrinth project for mod '**${name}**' because the name hasn't been used yet!`
-                    ),
-                ],
-            });
-
-            return;
+        if (!storage.isRegistered(int.guildId!, name)) {
+            return await warnFastReply(
+                int,
+                `\`${name}\` hasn't been found in storage`,
+                `❌ Can't select Modrinth project for mod '**${name}**' because the name hasn't been used yet!`
+            );
         }
 
         const api = new ModrinthAPI();
@@ -83,49 +57,31 @@ const modrinthCommand: Command = {
             verified = await api.verify(projectId);
         } catch (error) {
             if ((error as Error).message === 'Rate limit exceeded') {
-                await interaction.reply({
-                    embeds: [
-                        buildModrinthAPIEmbed().setDescription(
-                            `❌ Could not verify mod, retry later`
-                        ),
-                    ],
-                });
-                return;
+                return await fastReply(
+                    int,
+                    `❌ Could not verify mod, retry later`,
+                    buildModrinthAPIEmbed
+                );
             }
         }
 
         if (!verified) {
-            await interaction.reply({
-                embeds: [
-                    buildModrinthAPIEmbed().setDescription(
-                        `❌ The specified id or slug doesn't exist!`
-                    ),
-                ],
-            });
-            return;
+            return await fastReply(
+                int,
+                `❌ The specified id or slug doesn't exist!`
+            );
         }
 
-        await interaction.reply({
-            embeds: [
-                embed.setDescription(
-                    `🕹️ Setting Modrinth project '${projectId.toString()}' for mod '**${name}**'...`
-                ),
-            ],
-        });
-
-        logger.log(
-            `Set modrinth project for mod \`${name}\` in guild \`${interaction.guildId}\`...`
+        await logFastReply(
+            int,
+            `Set modrinth project for mod \`${name}\` in guild \`${int.guildId}\`...`,
+            `🕹️ Setting Modrinth project '${projectId.toString()}' for mod '**${name}**'...`
         );
 
-        storage.setModrinthId(interaction.guildId!, name, projectId);
+        storage.setModrinthId(int.guildId!, name, projectId);
     },
     async autocomplete(interaction) {
-        if (!interaction.inGuild) {
-            logger.warn(
-                `Can't complete command \`${interaction.commandName}\` (not in a guild)`
-            );
-            return;
-        }
+        if (outsideGuild(interaction, true)) return;
 
         const focused = interaction.options.getFocused(true);
         let choices: ApplicationCommandOptionChoiceData<string | number>[] = [];

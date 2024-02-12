@@ -6,7 +6,11 @@ import type { Command } from '../types/Command';
 import { logger, storage } from '../utils/global';
 import {
     buildCurseForgeAPIEmbed,
-    buildModTrackerEmbed,
+    fastReply,
+    logFastReply,
+    outsideGuild,
+    verifyRequiredOptionString,
+    warnFastReply,
 } from '../utils/commandUtils';
 import { CurseForgeAPI } from '../api/CurseForgeAPI';
 
@@ -27,88 +31,45 @@ const curseforgeCommand: Command = {
                 .setDescription('The project id of the mod to track')
                 .setRequired(true)
         ),
-    async execute(interaction) {
-        const name = interaction.options.getString('name');
-        const projectId = interaction.options.getString('project-id');
+    async execute(int) {
+        if (outsideGuild(int)) return;
 
-        const embed = buildModTrackerEmbed();
+        const name = await verifyRequiredOptionString(int, 'name');
+        const projectId = await verifyRequiredOptionString(int, 'project-id');
 
-        if (!name) {
-            logger.warn('`name` option not found in `curseforge`');
+        if (!name || !projectId) return;
 
-            await interaction.reply({
-                embeds: [
-                    embed.setDescription(`❌ Name option wasn't specified!`),
-                ],
-            });
-            return;
-        }
-
-        if (!projectId) {
-            logger.warn('`project-id` option not found in `channel`');
-
-            await interaction.reply({
-                embeds: [
-                    embed.setDescription(
-                        `❌ Project-id option wasn't specified!`
-                    ),
-                ],
-            });
-            return;
-        }
-
-        if (!interaction.inGuild) {
-            logger.warn("`curseforge` command wasn't run in guild");
-            return;
-        }
-
-        if (!storage.isRegistered(interaction.guildId!, name)) {
-            logger.warn(`\`${name}\` hasn't been found in storage`);
-
-            await interaction.reply({
-                embeds: [
-                    embed.setDescription(
-                        `❌ Can't select CurseForge project for mod '**${name}**' because the name hasn't been used yet!`
-                    ),
-                ],
-            });
-
-            return;
+        if (!storage.isRegistered(int.guildId!, name)) {
+            return await warnFastReply(
+                int,
+                `\`${name}\` hasn't been found in storage`,
+                `❌ Can't select CurseForge project for mod '**${name}**' because the name hasn't been used yet!`
+            );
         }
 
         const api = new CurseForgeAPI();
 
         if (!(await api.verify(projectId))) {
-            await interaction.reply({
-                embeds: [
-                    buildCurseForgeAPIEmbed().setDescription(
-                        `❌ The specified id doesn't exist!`
-                    ),
-                ],
-            });
-            return;
+            return await fastReply(
+                int,
+                `❌ The specified id doesn't exist!`,
+                buildCurseForgeAPIEmbed
+            );
         }
 
-        await interaction.reply({
-            embeds: [
-                embed.setDescription(
-                    `🕹️ Setting CurseForge project '${projectId.toString()}' for mod '**${name}**'...`
-                ),
-            ],
-        });
-
-        logger.log(
-            `Set curseforge project for mod \`${name}\` in guild \`${interaction.guildId}\`...`
+        await logFastReply(
+            int,
+            `Set curseforge project for mod \`${name}\` in guild \`${int.guildId}\`...`,
+            `🕹️ Setting CurseForge project '${projectId.toString()}' for mod '**${name}**'...`
         );
 
-        storage.setCurseForgeId(interaction.guildId!, name, projectId);
+        storage.setCurseForgeId(int.guildId!, name, projectId);
     },
     async autocomplete(interaction) {
         if (!interaction.inGuild) {
-            logger.warn(
+            return logger.warn(
                 `Can't complete command \`${interaction.commandName}\` (not in a guild)`
             );
-            return;
         }
 
         const focused = interaction.options.getFocused(true);

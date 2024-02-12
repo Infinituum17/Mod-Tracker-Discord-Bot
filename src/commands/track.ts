@@ -1,10 +1,12 @@
-import {
-    SlashCommandBuilder,
-    type ApplicationCommandOptionChoiceData,
-} from 'discord.js';
 import type { Command } from '../types/Command';
-import { storage, logger } from '../utils/global';
-import { buildModTrackerEmbed } from '../utils/commandUtils';
+import { SlashCommandBuilder } from 'discord.js';
+import { storage } from '../utils/global';
+import {
+    logFastReply,
+    outsideGuild,
+    verifyRequiredOptionString,
+    warnFastReply,
+} from '../utils/commandUtils';
 
 const trackCommand: Command = {
     data: new SlashCommandBuilder()
@@ -16,56 +18,30 @@ const trackCommand: Command = {
                 .setDescription('The name of the mod')
                 .setRequired(true)
         ),
-    async execute(interaction) {
-        const name = interaction.options.getString('name');
+    async execute(int) {
+        if (outsideGuild(int)) return;
 
-        const embed = buildModTrackerEmbed();
+        const name = await verifyRequiredOptionString(int, 'name');
 
-        if (!name) {
-            logger.warn('`name` option not found in `track`');
+        if (!name) return;
 
-            await interaction.reply({
-                embeds: [
-                    embed.setDescription(`❌ Name option wasn't specified!`),
-                ],
-            });
-            return;
+        if (storage.isRegistered(int.guildId!, name)) {
+            return await warnFastReply(
+                int,
+                `\`${name}\` has already been found in storage`,
+                `❌ Can't track mod '**${name}**' because the name is already in use!`
+            );
         }
 
-        if (!interaction.inGuild) {
-            logger.warn("`track` command wasn't run in guild");
-            return;
-        }
-
-        if (storage.isRegistered(interaction.guildId!, name)) {
-            logger.warn(`\`${name}\` has already been found in storage`);
-
-            await interaction.reply({
-                embeds: [
-                    embed.setDescription(
-                        `❌ Can't track mod '**${name}**' because the name is already in use!`
-                    ),
-                ],
-            });
-
-            return;
-        }
-
-        await interaction.reply({
-            embeds: [
-                embed.setDescription(
-                    `🕹️ Started tracking mod '**${name}**'...`
-                ),
-            ],
-        });
-
-        logger.log(
-            `Started tracking mod \`${name}\` in guild \`${interaction.guildId}\`...`
+        await logFastReply(
+            int,
+            `Started tracking mod \`${name}\` in guild \`${int.guildId}\`...`,
+            `🕹️ Started tracking mod '**${name}**'...`
         );
 
-        storage.registerMod(interaction.guildId!, name);
+        storage.registerMod(int.guildId!, name);
     },
-    async autocomplete(interaction) {
+    async autocomplete(int) {
         return;
     },
 };

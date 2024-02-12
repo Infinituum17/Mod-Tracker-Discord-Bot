@@ -4,7 +4,15 @@ import {
 } from 'discord.js';
 import type { Command } from '../types/Command';
 import { logger, storage } from '../utils/global';
-import { buildModTrackerEmbed } from '../utils/commandUtils';
+import {
+    fastReply,
+    logFastReply,
+    outsideGuild,
+    verifyRequiredOptionChannel,
+    verifyRequiredOptionString,
+    verifyRequiredSubcommand,
+    warnFastReply,
+} from '../utils/commandUtils';
 
 const channelCommand: Command = {
     data: new SlashCommandBuilder()
@@ -50,132 +58,64 @@ const channelCommand: Command = {
                         .setRequired(true)
                 )
         ),
-    async execute(interaction) {
-        const name = interaction.options.getString('name');
-        const channel = interaction.options.getChannel('channel');
+    async execute(int) {
+        if (outsideGuild(int)) return;
 
-        const embed = buildModTrackerEmbed();
+        const name = await verifyRequiredOptionString(int, 'name');
+        const channel = await verifyRequiredOptionChannel(int, 'channel');
+        const subcommand = await verifyRequiredSubcommand(int);
 
-        if (!name) {
-            logger.warn('`name` option not found in `channel`');
+        if (!name || !channel || !subcommand) return;
 
-            await interaction.reply({
-                embeds: [
-                    embed.setDescription(`❌ Name option wasn't specified!`),
-                ],
-            });
-            return;
-        }
-
-        if (!channel) {
-            logger.warn('`channel` option not found in `channel`');
-
-            await interaction.reply({
-                embeds: [
-                    embed.setDescription(`❌ Channel option wasn't specified!`),
-                ],
-            });
-            return;
-        }
-
-        if (!interaction.inGuild) {
-            logger.warn("`channel` command wasn't run in guild");
-            return;
-        }
-
-        if (!storage.isRegistered(interaction.guildId!, name)) {
-            logger.warn(`\`${name}\` hasn't been found in storage`);
-
-            await interaction.reply({
-                embeds: [
-                    embed.setDescription(
-                        `❌ Can't select channel for mod '**${name}**' because the name hasn't been used yet!`
-                    ),
-                ],
-            });
-
-            return;
-        }
-
-        let subcommand;
-
-        try {
-            subcommand = interaction.options.getSubcommand(true);
-        } catch (error) {
-            await interaction.reply({
-                embeds: [
-                    embed.setDescription(`❌ No subcommand was provided!`),
-                ],
-            });
-
-            return;
+        if (!storage.isRegistered(int.guildId!, name)) {
+            return warnFastReply(
+                int,
+                `\`${name}\` hasn't been found in storage`,
+                `❌ Can't select channel for mod '**${name}**' because the name hasn't been used yet!`
+            );
         }
 
         switch (subcommand) {
             case 'modrinth':
-                storage.setModrinthChannel(
-                    interaction.guildId!,
-                    name,
-                    channel.id
+                storage.setModrinthChannel(int.guildId!, name, channel.id);
+
+                await logFastReply(
+                    int,
+                    `Setting Modrinth channel for mod \`${name}\` in guild \`${int.guildId}\`...`,
+                    `🕹️ Setting Modrinth channel '${channel.toString()}' for mod '**${name}**'...`
                 );
 
-                await interaction.reply({
-                    embeds: [
-                        embed.setDescription(
-                            `🕹️ Setting Modrinth channel '${channel.toString()}' for mod '**${name}**'...`
-                        ),
-                    ],
-                });
-
-                logger.log(
-                    `Setting Modrinth channel for mod \`${name}\` in guild \`${interaction.guildId}\`...`
-                );
                 break;
             case 'curseforge':
-                storage.setCurseForgeChannel(
-                    interaction.guildId!,
-                    name,
-                    channel.id
+                storage.setCurseForgeChannel(int.guildId!, name, channel.id);
+
+                await logFastReply(
+                    int,
+                    `Setting CurseForge channel for mod \`${name}\` in guild \`${int.guildId}\`...`,
+                    `🕹️ Setting CurseForge channel '${channel.toString()}' for mod '**${name}**'...`
                 );
 
-                await interaction.reply({
-                    embeds: [
-                        embed.setDescription(
-                            `🕹️ Setting CurseForge channel '${channel.toString()}' for mod '**${name}**'...`
-                        ),
-                    ],
-                });
-
-                logger.log(
-                    `Setting CurseForge channel for mod \`${name}\` in guild \`${interaction.guildId}\`...`
-                );
                 break;
             default:
-                await interaction.reply({
-                    embeds: [
-                        embed.setDescription(
-                            `❌ An invalid subcommand was provided!`
-                        ),
-                    ],
-                });
-
-                return;
+                return await fastReply(
+                    int,
+                    `❌ An invalid subcommand was provided!`
+                );
         }
     },
-    async autocomplete(interaction) {
-        if (!interaction.inGuild) {
-            logger.warn(
-                `Can't complete command \`${interaction.commandName}\` (not in a guild)`
+    async autocomplete(int) {
+        if (!int.inGuild) {
+            return logger.warn(
+                `Can't complete command \`${int.commandName}\` (not in a guild)`
             );
-            return;
         }
 
-        const focused = interaction.options.getFocused(true);
+        const focused = int.options.getFocused(true);
         let choices: ApplicationCommandOptionChoiceData<string | number>[] = [];
 
         if (focused.name === 'name') {
             choices = storage
-                .getAllTrackedMods(interaction.guildId!)
+                .getAllTrackedMods(int.guildId!)
                 .filter((mod) => mod.name.startsWith(focused.value))
                 .map((mod) => ({
                     name: mod.name,
@@ -183,7 +123,7 @@ const channelCommand: Command = {
                 }));
         }
 
-        await interaction.respond(choices);
+        await int.respond(choices);
     },
 };
 

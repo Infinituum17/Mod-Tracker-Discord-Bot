@@ -3,8 +3,13 @@ import {
     type ApplicationCommandOptionChoiceData,
 } from 'discord.js';
 import type { Command } from '../types/Command';
-import { logger, storage } from '../utils/global';
-import { buildModTrackerEmbed } from '../utils/commandUtils';
+import { storage } from '../utils/global';
+import {
+    logFastReply,
+    outsideGuild,
+    verifyRequiredOptionString,
+    warnFastReply,
+} from '../utils/commandUtils';
 
 const deleteCommand: Command = {
     data: new SlashCommandBuilder()
@@ -17,58 +22,31 @@ const deleteCommand: Command = {
                 .setRequired(true)
                 .setAutocomplete(true)
         ),
-    async execute(interaction) {
-        const name = interaction.options.getString('name');
+    async execute(int) {
+        if (outsideGuild(int)) return;
 
-        const embed = buildModTrackerEmbed();
+        const name = await verifyRequiredOptionString(int, 'name');
 
-        if (!name) {
-            logger.warn('`name` option not found in `delete`');
+        if (!name) return;
 
-            await interaction.reply({
-                embeds: [
-                    embed.setDescription(`❌ Name option wasn't specified!`),
-                ],
-            });
-            return;
+        if (!storage.isRegistered(int.guildId!, name)) {
+            return warnFastReply(
+                int,
+                `\`${name}\` hasn't been found in storage`,
+                `❌ Can't delete mod '**${name}**' because the name hasn't been used yet!`
+            );
         }
 
-        if (!interaction.inGuild) {
-            logger.warn("`delete` command wasn't run in guild");
-            return;
-        }
-
-        if (!storage.isRegistered(interaction.guildId!, name)) {
-            logger.warn(`\`${name}\` hasn't been found in storage`);
-
-            await interaction.reply({
-                embeds: [
-                    embed.setDescription(
-                        `❌ Can't delete mod '**${name}**' because the name hasn't been used yet!`
-                    ),
-                ],
-            });
-
-            return;
-        }
-
-        await interaction.reply({
-            embeds: [embed.setDescription(`🕹️ Deleting mod '**${name}**'...`)],
-        });
-
-        logger.log(
-            `Deleted mod \`${name}\` in guild \`${interaction.guildId}\`...`
+        await logFastReply(
+            int,
+            `Deleted mod \`${name}\` in guild \`${int.guildId}\`...`,
+            `🕹️ Deleting mod '**${name}**'...`
         );
 
-        storage.deleteMod(interaction.guildId!, name);
+        storage.deleteMod(int.guildId!, name);
     },
     async autocomplete(interaction) {
-        if (!interaction.inGuild) {
-            logger.warn(
-                `Can't complete command \`${interaction.commandName}\` (not in a guild)`
-            );
-            return;
-        }
+        if (outsideGuild(interaction, true)) return;
 
         const focused = interaction.options.getFocused(true);
         let choices: ApplicationCommandOptionChoiceData<string | number>[] = [];

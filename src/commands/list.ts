@@ -1,35 +1,28 @@
-import {
-    Guild,
-    SlashCommandBuilder,
-    type ApplicationCommandOptionChoiceData,
-} from 'discord.js';
 import type { Command } from '../types/Command';
-import { logger, storage } from '../utils/global';
-import { buildModTrackerEmbed } from '../utils/commandUtils';
+import { Guild, SlashCommandBuilder } from 'discord.js';
+import { storage } from '../utils/global';
+import { buildModTrackerEmbed, outsideGuild } from '../utils/commandUtils';
 
 const listCommand: Command = {
     data: new SlashCommandBuilder()
         .setName('list')
         .setDescription('Lists all tracked mods'),
-    async execute(interaction) {
-        await interaction.deferReply();
+    async execute(int) {
+        if (outsideGuild(int)) return;
 
-        if (!interaction.inGuild) {
-            logger.warn("`list` command wasn't run in guild");
-            return;
-        }
+        await int.deferReply();
 
         const embed = buildModTrackerEmbed();
-        const trackedMods = storage.getAllTrackedMods(interaction.guildId!);
+        const trackedMods = storage.getAllTrackedMods(int.guildId!);
 
         const fields = await Promise.all(
             trackedMods.map(async (mod) => ({
                 name: `🕹️ ${mod.name}`,
                 value: `- Modrinth Channel: ${await getChannel(
-                    interaction.guild!,
+                    int.guild!,
                     mod.modrinth_channel
                 )}\n- CurseForge Channel: ${await getChannel(
-                    interaction.guild!,
+                    int.guild!,
                     mod.curseforge_channel
                 )}\n- Modrinth: \`${mod.modrinth ?? '❌'}\`\n- CurseForge: \`${
                     mod.curseforge ?? '❌'
@@ -37,7 +30,7 @@ const listCommand: Command = {
             }))
         );
 
-        await interaction.editReply({
+        await int.editReply({
             embeds: [
                 trackedMods.length > 0
                     ? embed.addFields(fields)
@@ -45,7 +38,7 @@ const listCommand: Command = {
             ],
         });
     },
-    async autocomplete(interaction) {
+    async autocomplete(int) {
         return;
     },
 };

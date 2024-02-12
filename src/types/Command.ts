@@ -7,6 +7,6 @@ import type {
 
 export interface Command {
     data: SlashCommandBuilder | Omit<any, any>;
-    execute(interaction: ChatInputCommandInteraction<CacheType>): void;
-    autocomplete(interaction: AutocompleteInteraction<CacheType>): void;
+    execute(int: ChatInputCommandInteraction<CacheType>): void;
+    autocomplete(int: AutocompleteInteraction<CacheType>): void;
 }
