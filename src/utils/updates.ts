@@ -8,7 +8,10 @@ import type { TrackedMod } from '../types/TrackedMod';
 import type { ModrinthProject } from '../types/ModrinthProject';
 import type { ModrinthProjectVersion } from '../types/ModrinthProjectVersion';
 import type { CurseForgeProject } from '../types/CurseForgeProject';
-import type { CurseForgeProjectVersion } from '../types/CurseForgeProjectVersion';
+import type {
+    CurseForgeProjectVersion,
+    Data,
+} from '../types/CurseForgeProjectVersion';
 
 const logger = new Logger('UPDATE-CHECKER');
 
@@ -31,38 +34,18 @@ export async function checkUpdates(client: Client<true>) {
         if (mod.modrinth_channel !== null) {
             try {
                 modrinthChannel = (await guild.channels.fetch(
-                    mod.modrinth_channel!
-                ))! as TextChannel;
+                    mod.modrinth_channel
+                )) as TextChannel;
             } catch (error) {}
         }
 
-        if (
-            mod.modrinth !== null &&
-            modrinthChannel !== null &&
-            typeof modrinthChannel !== 'undefined' &&
-            mod.modrinth_channel !== null
-        ) {
+        if (modrinthChannel && !isModrinthUpdated(mod, modrinthChannel)) {
             const [modrinthProject, modrinthUpdates] =
                 await checkModrinthUpdates(mod);
 
             for (const update of modrinthUpdates) {
                 await modrinthChannel.send({
-                    embeds: [
-                        buildModrinthAPIEmbed()
-                            .setTitle(`🟩 ${modrinthProject.title}`)
-                            .setImage(
-                                'https://media.beehiiv.com/cdn-cgi/image/fit=scale-down,format=auto,onerror=redirect,quality=80/uploads/publication/logo/a49f8e1b-3835-4ea1-a85b-118c6425ebc3/Modrinth_Dark_Logo.png'
-                            )
-                            .setThumbnail(modrinthProject.icon_url)
-                            .setTimestamp()
-                            .setDescription(
-                                `${
-                                    update.name
-                                } for Minecraft [${update.game_versions?.join(
-                                    ', '
-                                )}] has been released!`
-                            ),
-                    ],
+                    embeds: [buildModrinthEmbed(modrinthProject, update)],
                 });
             }
         }
@@ -73,43 +56,76 @@ export async function checkUpdates(client: Client<true>) {
             try {
                 curseforgeChannel = (await guild.channels.fetch(
                     mod.curseforge_channel
-                ))! as TextChannel;
+                )) as TextChannel;
             } catch (error) {}
         }
 
-        if (
-            mod.curseforge !== null &&
-            curseforgeChannel !== null &&
-            typeof curseforgeChannel !== 'undefined' &&
-            mod.curseforge_channel !== null
-        ) {
+        if (curseforgeChannel && isCurseForgeUpdated(mod, curseforgeChannel)) {
             const [curseforgeProject, curseforgeUpdates] =
                 await checkCurseForgeUpdates(mod);
 
-            for (const update of curseforgeUpdates.data!) {
-                await curseforgeChannel.send({
-                    embeds: [
-                        buildCurseForgeAPIEmbed()
-                            .setTitle(`🛠️ ${curseforgeProject.data.name}`)
-                            .setImage(
-                                'https://cdn.apexminecrafthosting.com/img/uploads/2021/05/21163117/curseforge-logo.png'
-                            )
-                            .setThumbnail(
-                                curseforgeProject.data.logo.thumbnailUrl
-                            )
-                            .setTimestamp()
-                            .setDescription(
-                                `${
-                                    update.displayName
-                                } for Minecraft [${update.gameVersions?.join(
-                                    ', '
-                                )}] has been released!`
-                            ),
-                    ],
-                });
+            if (curseforgeUpdates.data) {
+                for (const update of curseforgeUpdates.data) {
+                    await curseforgeChannel.send({
+                        embeds: [
+                            buildCurseForgeEmbed(curseforgeProject, update),
+                        ],
+                    });
+                }
             }
         }
     }
+}
+
+function isModrinthUpdated(mod: TrackedMod, channel: TextChannel) {
+    return (
+        mod.modrinth !== null &&
+        channel !== null &&
+        typeof channel !== 'undefined' &&
+        mod.modrinth_channel !== null
+    );
+}
+
+function isCurseForgeUpdated(mod: TrackedMod, channel: TextChannel) {
+    return (
+        mod.curseforge !== null &&
+        channel !== null &&
+        typeof channel !== 'undefined' &&
+        mod.curseforge_channel !== null
+    );
+}
+
+function buildModrinthEmbed(
+    project: ModrinthProject,
+    update: ModrinthProjectVersion
+) {
+    return buildModrinthAPIEmbed()
+        .setTitle(`🟩 ${project.title}`)
+        .setImage(
+            'https://media.beehiiv.com/cdn-cgi/image/fit=scale-down,format=auto,onerror=redirect,quality=80/uploads/publication/logo/a49f8e1b-3835-4ea1-a85b-118c6425ebc3/Modrinth_Dark_Logo.png'
+        )
+        .setThumbnail(project.icon_url)
+        .setTimestamp()
+        .setDescription(
+            `${update.name} for Minecraft [${update.game_versions?.join(
+                ', '
+            )}] has been released!`
+        );
+}
+
+function buildCurseForgeEmbed(project: CurseForgeProject, update: Data) {
+    return buildCurseForgeAPIEmbed()
+        .setTitle(`🛠️ ${project.data.name}`)
+        .setImage(
+            'https://cdn.apexminecrafthosting.com/img/uploads/2021/05/21163117/curseforge-logo.png'
+        )
+        .setThumbnail(project.data.logo.thumbnailUrl)
+        .setTimestamp()
+        .setDescription(
+            `${update.displayName} for Minecraft [${update.gameVersions?.join(
+                ', '
+            )}] has been released!`
+        );
 }
 
 async function checkModrinthUpdates(

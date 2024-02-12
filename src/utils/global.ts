@@ -1,6 +1,6 @@
 import { Logger } from './logger';
 import { readCommands } from './commandUtils';
-import { Storage } from './Storage';
+import { Storage } from '../classes/Storage';
 
 export const commands = await readCommands(true);
 export const storage = new Storage();

@@ -1,13 +1,9 @@
-import { config } from 'dotenv';
-import {
-    Client,
-    GatewayIntentBits,
-    type ApplicationCommandOptionChoiceData,
-} from 'discord.js';
-import { logger, storage } from './utils/global';
-import { commands } from './utils/global';
-import { checkUpdates } from './utils/updates';
+import { Client, GatewayIntentBits } from 'discord.js';
 import { setIntervalAsync } from 'set-interval-async';
+import { checkUpdates } from './utils/updates';
+import { commands } from './utils/global';
+import { config } from 'dotenv';
+import { logger } from './utils/global';
 
 config();
 

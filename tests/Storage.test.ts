@@ -1,7 +1,7 @@
 import { describe, test, expect, afterAll } from 'bun:test';
 import { join } from 'node:path';
 import { unlink } from 'node:fs/promises';
-import { Storage } from '../src/utils/Storage';
+import { Storage } from '../src/classes/Storage';
 import type { TrackedMod } from '../src/types/TrackedMod';
 import { storage } from '../src/utils/global';
 
