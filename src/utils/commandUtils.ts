@@ -65,7 +65,7 @@ export function buildModTrackerEmbed() {
 export function buildModrinthAPIEmbed() {
     return new EmbedBuilder()
         .setColor(0x35da72)
-        .setTitle('🟩 Modrinth API')
+        .setTitle('🔧 Modrinth API')
         .setThumbnail(
             'https://media.beehiiv.com/cdn-cgi/image/fit=scale-down,format=auto,onerror=redirect,quality=80/uploads/publication/logo/a49f8e1b-3835-4ea1-a85b-118c6425ebc3/Modrinth_Dark_Logo.png'
         );

@@ -103,32 +103,71 @@ function buildModrinthEmbed(
     update: ModrinthProjectVersion
 ) {
     return buildModrinthAPIEmbed()
-        .setTitle(`🟩 ${project.title}`)
-        .setImage(
-            'https://media.beehiiv.com/cdn-cgi/image/fit=scale-down,format=auto,onerror=redirect,quality=80/uploads/publication/logo/a49f8e1b-3835-4ea1-a85b-118c6425ebc3/Modrinth_Dark_Logo.png'
-        )
+        .setTitle(`🔧 ${project.title}`)
+        .setAuthor({
+            name: 'Modrinth API',
+            iconURL:
+                'https://media.beehiiv.com/cdn-cgi/image/fit=scale-down,format=auto,onerror=redirect,quality=80/uploads/publication/logo/a49f8e1b-3835-4ea1-a85b-118c6425ebc3/Modrinth_Dark_Logo.png',
+        })
         .setThumbnail(project.icon_url)
         .setTimestamp()
         .setDescription(
-            `${update.name} for Minecraft [${update.game_versions?.join(
+            `A new version of ${
+                project.title
+            } is now available!\n\n⚙️ **Version type**: ${
+                update.version_type
+            }\n🕹️ **Supported Minecraft versions:** ${update.game_versions?.join(
                 ', '
-            )}] has been released!`
-        );
+            )}${
+                update.loaders
+                    ? `\n🪜 **Mod loaders:** ${update.loaders.join(', ')}`
+                    : ''
+            }${
+                update.changelog
+                    ? `\n\n📄 **Changelog:** ${update.changelog}`
+                    : ''
+            }\n`
+        )
+        .setURL(`https://modrinth.com/mod/${project.slug}`);
 }
 
 function buildCurseForgeEmbed(project: CurseForgeProject, update: Data) {
     return buildCurseForgeAPIEmbed()
         .setTitle(`🛠️ ${project.data.name}`)
-        .setImage(
-            'https://cdn.apexminecrafthosting.com/img/uploads/2021/05/21163117/curseforge-logo.png'
-        )
+        .setAuthor({
+            name: 'CurseForge API',
+            iconURL:
+                'https://cdn.apexminecrafthosting.com/img/uploads/2021/05/21163117/curseforge-logo.png',
+        })
         .setThumbnail(project.data.logo.thumbnailUrl)
         .setTimestamp()
         .setDescription(
-            `${update.displayName} for Minecraft [${update.gameVersions?.join(
-                ', '
-            )}] has been released!`
+            `A new version of ${
+                project.data.name
+            } is now available!\n\n⚙️ **Version type**: ${getCurseForgeReleaseType(
+                update.releaseType
+            )}\n🕹️ **Supported Minecraft versions:** ${update.gameVersions?.filter(
+                (v) => /\d/gm.test(v)
+            )}\n🪜 **Mod loaders:** ${update.gameVersions?.filter(
+                (v) => !/\d/gm.test(v)
+            )}\n`
+        )
+        .setURL(
+            `https://curseforge.com/minecraft/mc-mods/${project.data.slug}`
         );
+}
+
+function getCurseForgeReleaseType(type: number) {
+    switch (type) {
+        case 1:
+            return 'release';
+        case 2:
+            return 'beta';
+        case 3:
+            return 'alpha';
+        default:
+            return 'N/A';
+    }
 }
 
 async function checkModrinthUpdates(
