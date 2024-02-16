@@ -179,16 +179,7 @@ async function checkModrinthUpdates(
     storage.setLastModrinthCheck(mod.guild_id, mod.display_name);
 
     if (mod.modrinth_last_check === null) {
-        return [
-            project,
-            (await api.getProjectVersions(mod.modrinth_id!))
-                .sort(
-                    (v1, v2) =>
-                        new Date(v2.date_published).getTime() -
-                        new Date(v1.date_published).getTime()
-                )
-                .slice(0, 5),
-        ];
+        return [project, []];
     }
 
     const previous = new Date(mod.modrinth_last_check).getTime();
@@ -222,15 +213,7 @@ async function checkCurseForgeUpdates(
             return [project, {}];
         }
 
-        projectVersions.data = projectVersions.data
-            .sort(
-                (d1, d2) =>
-                    new Date(d2.fileDate).getTime() -
-                    new Date(d1.fileDate).getTime()
-            )
-            .slice(0, 5);
-
-        return [project, projectVersions];
+        return [project, { data: [] }];
     }
 
     const previous = new Date(mod.curseforge_last_check).getTime();
