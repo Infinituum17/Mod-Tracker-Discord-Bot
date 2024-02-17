@@ -1,0 +1,13 @@
+name: Running tests
+on: [push]
+jobs:
+    Testing:
+        runs-on: ubuntu-latest
+        env:
+            CURSEFORGE_TOKEN: ${{secrets.CURSEFORGE_TOKEN}}
+        steps:
+            - uses: actions/checkout@v4
+            - uses: oven-sh/setup-bun@v1
+
+            - run: bun install
+            - run: bun test
