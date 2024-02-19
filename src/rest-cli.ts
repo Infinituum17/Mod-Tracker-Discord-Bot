@@ -1,4 +1,3 @@
-import { config } from 'dotenv';
 import type { REST } from 'discord.js';
 import { serializeCommands } from './utils/commandUtils';
 import { createREST } from './api/discord/create';
@@ -6,8 +5,6 @@ import { registerGuildCommands } from './api/discord/applicationGuildCommands/re
 import { registerGlobalCommands } from './api/discord/applicationCommands/register';
 import { deleteGuildCommands } from './api/discord/applicationGuildCommands/delete';
 import { deleteGlobalCommands } from './api/discord/applicationCommands/delete';
-
-config();
 
 function init() {
     const TOKEN = process.env.TOKEN;

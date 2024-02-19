@@ -2,10 +2,7 @@ import { Client, GatewayIntentBits } from 'discord.js';
 import { setIntervalAsync } from 'set-interval-async';
 import { checkUpdates } from './utils/updates';
 import { commands } from './utils/global';
-import { config } from 'dotenv';
 import { logger } from './utils/global';
-
-config();
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
