@@ -213,9 +213,9 @@ async function checkCurseForgeUpdates(
         return [project, {}];
     }
 
-    projectVersions.data = projectVersions.data.filter((version) => {
-        new Date(version.fileDate).getTime() > previous;
-    });
+    projectVersions.data = projectVersions.data.filter(
+        (version) => new Date(version.fileDate).getTime() > previous
+    );
 
     if (projectVersions.data.length > 0)
         storage.setLastCurseForgeCheck(mod.guild_id, mod.display_name);
