@@ -5,6 +5,6 @@ export interface TrackedMod {
     curseforge_id: string | null;
     modrinth_channel: string | null;
     curseforge_channel: string | null;
-    modrinth_last_check: string | null;
-    curseforge_last_check: string | null;
+    modrinth_last_check: number;
+    curseforge_last_check: number;
 }

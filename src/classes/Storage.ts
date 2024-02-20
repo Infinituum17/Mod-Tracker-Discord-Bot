@@ -22,8 +22,8 @@ export class Storage {
                 curseforge_channel TEXT,
                 modrinth_id TEXT,
                 curseforge_id TEXT,
-                modrinth_last_check TEXT,
-                curseforge_last_check TEXT,
+                modrinth_last_check UNSIGNED INTEGER NOT NULL,
+                curseforge_last_check UNSIGNED INTEGER NOT NULL,
                 PRIMARY KEY (guild_id, display_name)
             );`
         );
@@ -31,10 +31,12 @@ export class Storage {
 
     registerMod(guildId: string, displayName: string): void {
         const query = this.db.prepare(
-            `INSERT INTO ${this.tableName} (guild_id, display_name) VALUES (?, ?);`
+            `INSERT INTO ${this.tableName} (guild_id, display_name, modrinth_last_check, curseforge_last_check) VALUES (?, ?, ?, ?);`
         );
 
-        query.run(guildId, displayName);
+        const now = new Date().getTime();
+
+        query.run(guildId, displayName, now, now);
     }
 
     deleteMod(guildId: string, displayName: string): void {

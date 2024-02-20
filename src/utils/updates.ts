@@ -176,8 +176,6 @@ async function checkModrinthUpdates(
     const api = new ModrinthAPI();
     const project = await api.getProject(mod.modrinth_id!);
 
-    storage.setLastModrinthCheck(mod.guild_id, mod.display_name);
-
     if (mod.modrinth_last_check === null) {
         return [project, []];
     }
@@ -185,12 +183,24 @@ async function checkModrinthUpdates(
     const previous = new Date(mod.modrinth_last_check).getTime();
     const projectVersions = await api.getProjectVersions(mod.modrinth_id!);
 
-    return [
-        project,
-        projectVersions.filter(
-            (version) => new Date(version.date_published).getTime() > previous
-        ),
-    ];
+    logger.debug(`Previous time check: ${mod.modrinth_last_check}`);
+    logger.debug(`Previous check: ${new Date(mod.modrinth_last_check)}`);
+    logger.debug(
+        `All versions (modrinth-${mod.modrinth_id}): ${projectVersions.length}`
+    );
+
+    const newProjectVersions = projectVersions.filter(
+        (version) => new Date(version.date_published).getTime() > previous
+    );
+
+    logger.debug(
+        `New versions (modrinth-${mod.modrinth_id}): ${newProjectVersions.length}`
+    );
+
+    if (newProjectVersions.length > 0)
+        storage.setLastModrinthCheck(mod.guild_id, mod.display_name);
+
+    return [project, newProjectVersions];
 }
 
 async function checkCurseForgeUpdates(
@@ -199,20 +209,7 @@ async function checkCurseForgeUpdates(
     const api = new CurseForgeAPI();
     const project = await api.getProject(mod.curseforge_id!);
 
-    storage.setLastCurseForgeCheck(mod.guild_id, mod.display_name);
-
     if (mod.curseforge_last_check === null) {
-        const projectVersions = await api.getProjectVersions(
-            mod.curseforge_id!
-        );
-
-        if (
-            projectVersions.data === null ||
-            typeof projectVersions.data === 'undefined'
-        ) {
-            return [project, {}];
-        }
-
         return [project, { data: [] }];
     }
 
@@ -229,6 +226,13 @@ async function checkCurseForgeUpdates(
     projectVersions.data = projectVersions.data.filter((version) => {
         new Date(version.fileDate).getTime() > previous;
     });
+
+    logger.debug(
+        `New versions (curseforge-${mod.curseforge_id}): ${projectVersions.data.length}`
+    );
+
+    if (projectVersions.data.length > 0)
+        storage.setLastCurseForgeCheck(mod.guild_id, mod.display_name);
 
     return [project, projectVersions];
 }
