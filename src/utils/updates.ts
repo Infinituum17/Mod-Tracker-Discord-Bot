@@ -183,18 +183,8 @@ async function checkModrinthUpdates(
     const previous = new Date(mod.modrinth_last_check).getTime();
     const projectVersions = await api.getProjectVersions(mod.modrinth_id!);
 
-    logger.debug(`Previous time check: ${mod.modrinth_last_check}`);
-    logger.debug(`Previous check: ${new Date(mod.modrinth_last_check)}`);
-    logger.debug(
-        `All versions (modrinth-${mod.modrinth_id}): ${projectVersions.length}`
-    );
-
     const newProjectVersions = projectVersions.filter(
         (version) => new Date(version.date_published).getTime() > previous
-    );
-
-    logger.debug(
-        `New versions (modrinth-${mod.modrinth_id}): ${newProjectVersions.length}`
     );
 
     if (newProjectVersions.length > 0)
@@ -226,10 +216,6 @@ async function checkCurseForgeUpdates(
     projectVersions.data = projectVersions.data.filter((version) => {
         new Date(version.fileDate).getTime() > previous;
     });
-
-    logger.debug(
-        `New versions (curseforge-${mod.curseforge_id}): ${projectVersions.data.length}`
-    );
 
     if (projectVersions.data.length > 0)
         storage.setLastCurseForgeCheck(mod.guild_id, mod.display_name);
