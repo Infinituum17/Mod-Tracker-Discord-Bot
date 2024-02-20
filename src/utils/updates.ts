@@ -214,7 +214,9 @@ async function checkCurseForgeUpdates(
     }
 
     projectVersions.data = projectVersions.data.filter(
-        (version) => new Date(version.fileDate).getTime() > previous
+        (version) =>
+            version.isAvailable &&
+            new Date(version.fileDate).getTime() > previous
     );
 
     if (projectVersions.data.length > 0)
