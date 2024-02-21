@@ -64,8 +64,8 @@ describe('Storage tests', () => {
         expect(mods[0].curseforge_channel).toBe('3');
         expect(mods[0].modrinth_channel).toBe('3');
 
-        expect(mods[0].modrinth_last_check).toBeString();
-        expect(mods[0].curseforge_last_check).toBeString();
+        expect(mods[0].modrinth_last_check).toBeNumber();
+        expect(mods[0].curseforge_last_check).toBeNumber();
 
         storage.deleteMod('0', 'mod0');
     });
