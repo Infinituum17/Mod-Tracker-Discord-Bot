@@ -29,7 +29,7 @@ export async function checkUpdates(client: Client<true>) {
             const api = new ModrinthAPI();
             const [project, updates] = await api.getUpdates(mod);
 
-            for (const update of updates) {
+            for (const update of updates.reverse()) {
                 await modrinthChannel.send(
                     ModrinthAPI.getUpdateMessage(project, update)
                 );
@@ -53,7 +53,7 @@ export async function checkUpdates(client: Client<true>) {
             const [project, updates] = await api.getUpdates(mod);
 
             if (updates.data) {
-                for (const update of updates.data) {
+                for (const update of updates.data.reverse()) {
                     await curseforgeChannel.send(
                         CurseForgeAPI.getUpdateMessage(project, update)
                     );
